@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
+use App\Http\Controllers\Student\ServiceListingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -36,6 +37,11 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::get('/profile/edit', [StudentProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/portfolio/{index}', [StudentProfileController::class, 'deletePortfolioFile'])->name('profile.portfolio.delete');
+    
+    // Service listing routes
+    Route::resource('services', ServiceListingController::class);
+    Route::patch('/services/{service}/toggle-status', [ServiceListingController::class, 'toggleStatus'])->name('services.toggle-status');
+    Route::delete('/services/{service}/samples/{index}', [ServiceListingController::class, 'deleteSample'])->name('services.delete-sample');
 });
 
 Route::middleware('auth')->group(function () {

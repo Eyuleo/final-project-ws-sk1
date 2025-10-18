@@ -1,0 +1,277 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Controllers\Student;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Student\CreateServiceRequest;
+use App\Http\Requests\Student\UpdateServiceRequest;
+use App\Models\ServiceListing;
+use App\Services\FileUploadService;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class ServiceListingController extends Controller
+{
+    public function __construct(
+        private readonly FileUploadService $fileUploadService
+    ) {
+        $this->authorizeResource(ServiceListing::class, 'service');
+    }
+
+    /**
+     * Display a listing of the student's services.
+     */
+    public function index(): View
+    {
+        $user = Auth::user();
+        
+        $services = $user->serviceListings()
+            ->withCount(['orders', 'reviews'])
+            ->withAvg('reviews', 'rating')
+            ->latest()
+            ->paginate(12);
+
+        $stats = [
+            'total_services' => $user->serviceListings()->count(),
+            'active_services' => $user->serviceListings()->where('status', 'active')->count(),
+            'paused_services' => $user->serviceListings()->where('status', 'paused')->count(),
+            'total_orders' => $user->studentOrders()->count(),
+        ];
+
+        return view('student.services.index', compact('services', 'stats'));
+    }
+
+    /**
+     * Show the form for creating a new service.
+     */
+    public function create(): View
+    {
+        $categories = [
+            'web_development' => 'Web Development',
+            'mobile_development' => 'Mobile Development',
+            'graphic_design' => 'Graphic Design',
+            'video_editing' => 'Video Editing',
+            'content_writing' => 'Content Writing',
+            'digital_marketing' => 'Digital Marketing',
+            'data_analysis' => 'Data Analysis',
+            'tutoring' => 'Tutoring',
+            'translation' => 'Translation',
+            'other' => 'Other',
+        ];
+
+        return view('student.services.create', compact('categories'));
+    }
+
+    /**
+     * Store a newly created service in storage.
+     */
+    public function store(CreateServiceRequest $request): RedirectResponse
+    {
+        $user = Auth::user();
+        $validated = $request->validated();
+
+        // Handle portfolio samples upload
+        $portfolioSamples = [];
+        if ($request->hasFile('portfolio_samples')) {
+            foreach ($request->file('portfolio_samples') as $index => $file) {
+                $uploadedFile = $this->fileUploadService->uploadFile(
+                    $file,
+                    'service-samples',
+                    true // Generate thumbnail for images
+                );
+
+                $portfolioSamples[] = [
+                    'path' => $uploadedFile['path'],
+                    'thumbnail' => $uploadedFile['thumbnail'] ?? null,
+                    'original_name' => $uploadedFile['original_name'],
+                    'type' => $uploadedFile['type'],
+                    'size' => $uploadedFile['size'],
+                    'description' => $request->input("sample_descriptions.{$index}"),
+                ];
+            }
+        }
+
+        // Create service listing
+        $service = $user->serviceListings()->create([
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'delivery_time' => $validated['delivery_time'],
+            'revisions' => $validated['revisions'],
+            'requirements' => $validated['requirements'] ?? null,
+            'tags' => $validated['tags'] ?? [],
+            'portfolio_samples' => $portfolioSamples,
+            'status' => 'active',
+        ]);
+
+        return redirect()->route('student.services.show', $service)
+            ->with('success', 'Service listing created successfully!');
+    }
+
+    /**
+     * Display the specified service.
+     */
+    public function show(ServiceListing $service): View
+    {
+        $service->load(['student.studentProfile', 'reviews.client']);
+        
+        $stats = [
+            'total_orders' => $service->orders()->count(),
+            'completed_orders' => $service->orders()->where('status', 'completed')->count(),
+            'in_progress_orders' => $service->orders()->whereIn('status', ['pending', 'in_progress'])->count(),
+            'average_rating' => $service->reviews()->avg('rating') ?? 0,
+            'total_reviews' => $service->reviews()->count(),
+        ];
+
+        return view('student.services.show', compact('service', 'stats'));
+    }
+
+    /**
+     * Show the form for editing the specified service.
+     */
+    public function edit(ServiceListing $service): View
+    {
+        $categories = [
+            'web_development' => 'Web Development',
+            'mobile_development' => 'Mobile Development',
+            'graphic_design' => 'Graphic Design',
+            'video_editing' => 'Video Editing',
+            'content_writing' => 'Content Writing',
+            'digital_marketing' => 'Digital Marketing',
+            'data_analysis' => 'Data Analysis',
+            'tutoring' => 'Tutoring',
+            'translation' => 'Translation',
+            'other' => 'Other',
+        ];
+
+        return view('student.services.edit', compact('service', 'categories'));
+    }
+
+    /**
+     * Update the specified service in storage.
+     */
+    public function update(UpdateServiceRequest $request, ServiceListing $service): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        // Handle new portfolio samples upload
+        $existingSamples = $service->portfolio_samples ?? [];
+        $newSamples = [];
+
+        if ($request->hasFile('portfolio_samples')) {
+            foreach ($request->file('portfolio_samples') as $index => $file) {
+                $uploadedFile = $this->fileUploadService->uploadFile(
+                    $file,
+                    'service-samples',
+                    true
+                );
+
+                $newSamples[] = [
+                    'path' => $uploadedFile['path'],
+                    'thumbnail' => $uploadedFile['thumbnail'] ?? null,
+                    'original_name' => $uploadedFile['original_name'],
+                    'type' => $uploadedFile['type'],
+                    'size' => $uploadedFile['size'],
+                    'description' => $request->input("sample_descriptions.{$index}"),
+                ];
+            }
+        }
+
+        // Merge existing and new samples
+        $portfolioSamples = array_merge($existingSamples, $newSamples);
+
+        // Update service
+        $service->update([
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'description' => $validated['description'],
+            'price' => $validated['price'],
+            'delivery_time' => $validated['delivery_time'],
+            'revisions' => $validated['revisions'],
+            'requirements' => $validated['requirements'] ?? null,
+            'tags' => $validated['tags'] ?? [],
+            'portfolio_samples' => $portfolioSamples,
+        ]);
+
+        return redirect()->route('student.services.show', $service)
+            ->with('success', 'Service listing updated successfully!');
+    }
+
+    /**
+     * Remove the specified service from storage.
+     */
+    public function destroy(ServiceListing $service): RedirectResponse
+    {
+        // Check if service has active orders
+        if ($service->orders()->whereIn('status', ['pending', 'in_progress'])->exists()) {
+            return redirect()->route('student.services.index')
+                ->with('error', 'Cannot delete service with active orders. Please complete or cancel them first.');
+        }
+
+        // Delete portfolio samples
+        if ($service->portfolio_samples) {
+            foreach ($service->portfolio_samples as $sample) {
+                $this->fileUploadService->deleteFile($sample['path']);
+                if (isset($sample['thumbnail'])) {
+                    $this->fileUploadService->deleteFile($sample['thumbnail']);
+                }
+            }
+        }
+
+        $service->delete();
+
+        return redirect()->route('student.services.index')
+            ->with('success', 'Service listing deleted successfully!');
+    }
+
+    /**
+     * Toggle service status between active and paused.
+     */
+    public function toggleStatus(ServiceListing $service): RedirectResponse
+    {
+        $this->authorize('update', $service);
+
+        $newStatus = $service->status === 'active' ? 'paused' : 'active';
+        $service->update(['status' => $newStatus]);
+
+        $message = $newStatus === 'active' 
+            ? 'Service activated successfully!' 
+            : 'Service paused successfully!';
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Delete a portfolio sample from service.
+     */
+    public function deleteSample(ServiceListing $service, int $index): RedirectResponse
+    {
+        $this->authorize('update', $service);
+
+        $samples = $service->portfolio_samples ?? [];
+
+        if (isset($samples[$index])) {
+            // Delete the file from storage
+            $this->fileUploadService->deleteFile($samples[$index]['path']);
+            if (isset($samples[$index]['thumbnail'])) {
+                $this->fileUploadService->deleteFile($samples[$index]['thumbnail']);
+            }
+
+            // Remove from array
+            array_splice($samples, $index, 1);
+
+            // Update service
+            $service->update([
+                'portfolio_samples' => array_values($samples), // Re-index array
+            ]);
+
+            return back()->with('success', 'Portfolio sample deleted successfully!');
+        }
+
+        return back()->with('error', 'Portfolio sample not found.');
+    }
+}

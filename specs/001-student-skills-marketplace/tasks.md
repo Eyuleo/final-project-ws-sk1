@@ -146,17 +146,17 @@
 
 ### Implementation for User Story 2
 
-- [ ] T069 [P] [US2] Create StoreServiceRequest form request in `app/Http/Requests/Student/StoreServiceRequest.php`
-- [ ] T070 [P] [US2] Create UpdateServiceRequest form request in `app/Http/Requests/Student/UpdateServiceRequest.php`
-- [ ] T071 [US2] Create ServiceController in `app/Http/Controllers/Student/ServiceController.php` with CRUD methods
-- [ ] T072 [P] [US2] Create service index view in `resources/views/student/services/index.blade.php`
-- [ ] T073 [P] [US2] Create service create view in `resources/views/student/services/create.blade.php`
-- [ ] T074 [P] [US2] Create service edit view in `resources/views/student/services/edit.blade.php`
-- [ ] T075 [P] [US2] Create service show view in `resources/views/student/services/show.blade.php`
-- [ ] T076 [US2] Add service listing routes to `routes/web.php` with student middleware
-- [ ] T077 [US2] Implement ServiceListingPolicy in `app/Policies/ServiceListingPolicy.php` for authorization
-- [ ] T078 [US2] Add portfolio file handling to service listings in FileUploadService
-- [ ] T079 [US2] Implement service status toggle (active/paused) functionality
+- [x] T069 [P] [US2] Create CreateServiceRequest form request in `app/Http/Requests/Student/CreateServiceRequest.php`
+- [x] T070 [P] [US2] Create UpdateServiceRequest form request in `app/Http/Requests/Student/UpdateServiceRequest.php`
+- [x] T071 [US2] Create ServiceListingController in `app/Http/Controllers/Student/ServiceListingController.php` with CRUD methods
+- [x] T072 [P] [US2] Create service index view in `resources/views/student/services/index.blade.php`
+- [x] T073 [P] [US2] Create service create view in `resources/views/student/services/create.blade.php`
+- [x] T074 [P] [US2] Create service edit view in `resources/views/student/services/edit.blade.php`
+- [x] T075 [P] [US2] Create service show view in `resources/views/student/services/show.blade.php`
+- [x] T076 [US2] Add service listing routes to `routes/web.php` with student middleware
+- [x] T077 [US2] Implement ServiceListingPolicy in `app/Policies/ServiceListingPolicy.php` for authorization
+- [x] T078 [US2] Add portfolio file handling to service listings in FileUploadService
+- [x] T079 [US2] Implement service status toggle (active/paused) functionality
 
 **Checkpoint**: Students can create, edit, pause, and delete service listings with portfolio samples
 
