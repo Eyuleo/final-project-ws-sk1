@@ -17,7 +17,7 @@
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     @auth
                         @if(Auth::user()->role === 'student')
-                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('student.dashboard')" :active="request()->routeIs('dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
                             <x-nav-link :href="route('student.services.index')" :active="request()->routeIs('student.services.*')">
@@ -33,10 +33,10 @@
                                 {{ __('Messages') }}
                             </x-nav-link>
                         @elseif(Auth::user()->role === 'client')
-                            <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                            <x-nav-link :href="route('client.dashboard')" :active="request()->routeIs('client.dashboard')">
                                 {{ __('Dashboard') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('client.services.index')" :active="request()->routeIs('client.services.*')">
+                            <x-nav-link :href="route('services.index')" :active="request()->routeIs('services.*')">
                                 {{ __('Browse Services') }}
                             </x-nav-link>
                             <x-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
@@ -168,10 +168,10 @@
                         {{ __('Messages') }}
                     </x-responsive-nav-link>
                 @elseif(Auth::user()->role === 'client')
-                    <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
+                    <x-responsive-nav-link :href="route('client.dashboard')" :active="request()->routeIs('client.dashboard')">
                         {{ __('Dashboard') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('client.services.index')" :active="request()->routeIs('client.services.*')">
+                    <x-responsive-nav-link :href="route('services.index')" :active="request()->routeIs('services.*')">
                         {{ __('Browse Services') }}
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">

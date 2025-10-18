@@ -24,7 +24,14 @@ Route::get('/categories', [CategoryController::class, 'index'])->name('categorie
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = Auth::user();
+    
+    return match ($user->role) {
+        'student' => redirect()->route('student.dashboard'),
+        'client' => redirect()->route('client.dashboard'),
+        'admin' => redirect()->route('admin.dashboard'),
+        default => redirect()->route('welcome'),
+    };
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Student dashboard route

@@ -167,7 +167,7 @@
             @if($relatedServices->isNotEmpty())
                 <div class="mt-12">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Related Services</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 mx-2 md:grid-cols-2 md:mx-0 lg:grid-cols-4 lg:mx-0 gap-6 ">
                         @foreach($relatedServices as $relatedService)
                             <x-service-card :service="$relatedService" />
                         @endforeach
