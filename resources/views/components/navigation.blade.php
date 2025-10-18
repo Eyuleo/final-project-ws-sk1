@@ -5,10 +5,10 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
+                    <a href="{{ auth()->check() ? route('dashboard') : route('welcome') }}">
                         <x-application-logo class="block h-9 w-auto fill-current text-blue-600" />
                     </a>
-                    <a href="{{ route('dashboard') }}" class="ml-3 text-xl font-bold text-gray-900">
+                    <a href="{{ auth()->check() ? route('dashboard') : route('welcome') }}" class="ml-3 text-xl font-bold text-gray-900">
                         {{ config('app.name') }}
                     </a>
                 </div>

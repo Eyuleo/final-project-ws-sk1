@@ -54,26 +54,28 @@
         </p>
 
         <!-- Student Info -->
+        @if($service->studentProfile && $service->studentProfile->user)
         <div class="flex items-center mb-4">
-            @if($service->student->studentProfile->profile_picture)
-                <img src="{{ Storage::url($service->student->studentProfile->profile_picture) }}" 
-                     alt="{{ $service->student->name }}" 
+            @if($service->studentProfile->profile_picture)
+                <img src="{{ Storage::url($service->studentProfile->profile_picture) }}" 
+                     alt="{{ $service->studentProfile->user->name }}" 
                      class="h-8 w-8 rounded-full object-cover">
             @else
                 <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-semibold">
-                    {{ substr($service->student->name, 0, 1) }}
+                    {{ substr($service->studentProfile->user->name, 0, 1) }}
                 </div>
             @endif
             <div class="ml-2">
-                <p class="text-sm font-medium text-gray-900">{{ $service->student->name }}</p>
+                <p class="text-sm font-medium text-gray-900">{{ $service->studentProfile->user->name }}</p>
                 <div class="flex items-center">
-                    <x-rating-stars :rating="$service->student->studentProfile->average_rating ?? 0" size="sm" />
+                    <x-rating-stars :rating="$service->studentProfile->average_rating ?? 0" size="sm" />
                     <span class="ml-1 text-xs text-gray-500">
-                        ({{ $service->student->studentProfile->total_reviews ?? 0 }})
+                        ({{ $service->studentProfile->total_reviews ?? 0 }})
                     </span>
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Footer -->
         <div class="flex items-center justify-between pt-4 border-t border-gray-200">
@@ -81,7 +83,7 @@
                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                {{ $service->delivery_time }} days
+                {{ $service->delivery_days }} days
             </div>
             <div class="text-right">
                 <p class="text-xs text-gray-500">Starting at</p>

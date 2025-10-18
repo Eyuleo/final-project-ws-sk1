@@ -1,13 +1,27 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Client\ServiceDiscoveryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ServiceListingController;
+use App\Services\SearchService;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
+// Homepage with featured services
+Route::get('/', function (SearchService $searchService) {
+    $categories = $searchService->getCategories();
+    $featuredServices = $searchService->getFeaturedServices(8);
+    return view('welcome', compact('categories', 'featuredServices'));
 })->name('welcome');
+
+// Public service discovery routes
+Route::get('/services', [ServiceDiscoveryController::class, 'index'])->name('services.index');
+Route::get('/services/{service}', [ServiceDiscoveryController::class, 'show'])->name('services.show');
+
+// Category routes
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

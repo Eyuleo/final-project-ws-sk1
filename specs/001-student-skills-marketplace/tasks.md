@@ -170,19 +170,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T080 [P] [US3] Create client registration view in `resources/views/auth/register-client.blade.php`
-- [ ] T081 [US3] Implement client registration logic in `app/Http/Controllers/Auth/RegisteredUserController.php` (createClient, storeClient methods)
-- [ ] T082 [US3] Create SearchService in `app/Services/SearchService.php` with search and filter methods
-- [ ] T083 [US3] Create ServiceDiscoveryController in `app/Http/Controllers/Client/ServiceDiscoveryController.php` with index and show methods
-- [ ] T084 [P] [US3] Create homepage view in `resources/views/welcome.blade.php` with featured services and search
-- [ ] T085 [P] [US3] Create service discovery index view in `resources/views/client/services/index.blade.php` with filters
-- [ ] T086 [P] [US3] Create service detail view in `resources/views/client/services/show.blade.php`
-- [ ] T087 [P] [US3] Create client dashboard view in `resources/views/client/dashboard.blade.php`
-- [ ] T088 [P] [US3] Create CategoryController in `app/Http/Controllers/CategoryController.php` for category browsing
-- [ ] T089 [P] [US3] Create category views in `resources/views/categories/` directory
-- [ ] T090 [US3] Add public and client routes to `routes/web.php`
-- [ ] T091 [US3] Implement search filters (category, price range, rating, delivery time) in SearchService
-- [ ] T092 [US3] Implement sorting options (relevance, price, rating, newest) in SearchService
+- [x] T080 [P] [US3] Create client registration view in `resources/views/auth/register-client.blade.php`
+- [x] T081 [US3] Implement client registration logic in `app/Http/Controllers/Auth/RegisteredUserController.php` (createClient, storeClient methods)
+- [x] T082 [US3] Create SearchService in `app/Services/SearchService.php` with search and filter methods
+- [x] T083 [US3] Create ServiceDiscoveryController in `app/Http/Controllers/Client/ServiceDiscoveryController.php` with index and show methods
+- [x] T084 [P] [US3] Create homepage view in `resources/views/welcome.blade.php` with featured services and search
+- [x] T085 [P] [US3] Create service discovery index view in `resources/views/client/services/index.blade.php` with filters
+- [x] T086 [P] [US3] Create service detail view in `resources/views/client/services/show.blade.php`
+- [x] T087 [P] [US3] Create client dashboard view in `resources/views/client/dashboard.blade.php`
+- [x] T088 [P] [US3] Create CategoryController in `app/Http/Controllers/CategoryController.php` for category browsing
+- [x] T089 [P] [US3] Create category views in `resources/views/categories/` directory
+- [x] T090 [US3] Add public and client routes to `routes/web.php`
+- [x] T091 [US3] Implement search filters (category, price range, rating, delivery time) in SearchService
+- [x] T092 [US3] Implement sorting options (relevance, price, rating, newest) in SearchService
 
 **Checkpoint**: Clients can register, search/filter services, view detailed listings and provider profiles
 
