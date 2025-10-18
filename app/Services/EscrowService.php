@@ -299,4 +299,43 @@ class EscrowService
             'refunded_at' => $escrowTransaction->metadata['refunded_at'] ?? null,
         ];
     }
+
+    /**
+     * Update student balance after escrow release
+     *
+     * @param \App\Models\StudentProfile $student
+     * @param float $amount
+     * @return void
+     */
+    public function updateStudentBalance(\App\Models\StudentProfile $student, float $amount): void
+    {
+        DB::transaction(function () use ($student, $amount) {
+            $student->increment('available_balance', $amount);
+            $student->increment('total_earnings', $amount);
+        });
+    }
+
+    /**
+     * Get orders eligible for auto-release (completed > 7 days ago)
+     *
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getEligibleForAutoRelease(): \Illuminate\Database\Eloquent\Collection
+    {
+        return Order::where('status', 'completed')
+            ->where('escrow_status', 'held')
+            ->where('completed_at', '<=', now()->subDays(7))
+            ->get();
+    }
+
+    /**
+     * Calculate platform commission
+     *
+     * @param float $amount
+     * @return float Commission amount (15%)
+     */
+    public function calculateCommission(float $amount): float
+    {
+        return round($amount * 0.15, 2);
+    }
 }

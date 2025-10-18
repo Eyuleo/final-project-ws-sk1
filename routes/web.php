@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\ServiceDiscoveryController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ServiceListingController;
 use App\Services\SearchService;
@@ -22,6 +24,9 @@ Route::get('/services/{service}', [ServiceDiscoveryController::class, 'show'])->
 // Category routes
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->name('categories.show');
+
+// Stripe webhook (exclude from CSRF protection in bootstrap/app.php)
+Route::post('/stripe/webhook', [StripeWebhookController::class, 'handleWebhook'])->name('stripe.webhook');
 
 Route::get('/dashboard', function () {
     $user = Auth::user();
@@ -63,6 +68,26 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::resource('services', ServiceListingController::class);
     Route::patch('/services/{service}/toggle-status', [ServiceListingController::class, 'toggleStatus'])->name('services.toggle-status');
     Route::delete('/services/{service}/samples/{index}', [ServiceListingController::class, 'deleteSample'])->name('services.delete-sample');
+});
+
+// Client order routes
+Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(function () {
+    // Service discovery routes (client-specific views)
+    Route::get('/services', [ServiceDiscoveryController::class, 'index'])->name('services.index');
+    Route::get('/services/{service}', [ServiceDiscoveryController::class, 'show'])->name('services.show');
+    
+    // Order placement routes
+    Route::get('/orders/create/{service}', [ClientOrderController::class, 'create'])->name('orders.create');
+    Route::post('/orders', [ClientOrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/success', [ClientOrderController::class, 'success'])->name('orders.success');
+    Route::get('/orders/cancel', [ClientOrderController::class, 'cancel'])->name('orders.cancel');
+    
+    // Order management routes
+    Route::get('/orders', [ClientOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [ClientOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/approve', [ClientOrderController::class, 'approve'])->name('orders.approve');
+    Route::post('/orders/{order}/revision', [ClientOrderController::class, 'requestRevision'])->name('orders.revision');
+    Route::post('/orders/{order}/dispute', [ClientOrderController::class, 'dispute'])->name('orders.dispute');
 });
 
 Route::middleware('auth')->group(function () {

@@ -29,20 +29,21 @@ class PaymentService
      * Create a Stripe Checkout session for an order payment
      *
      * @param Order $order The order to create payment for
-     * @param string $successUrl URL to redirect after successful payment
-     * @param string $cancelUrl URL to redirect if payment is cancelled
      * @return Session The created Stripe Checkout session
      * @throws ApiErrorException
      */
-    public function createCheckoutSession(Order $order, string $successUrl, string $cancelUrl): Session
+    public function createCheckoutSession(Order $order): Session
     {
+        $successUrl = route('client.orders.success') . '?session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl = route('client.orders.cancel');
+
         $lineItems = [
             [
                 'price_data' => [
                     'currency' => 'usd',
                     'product_data' => [
                         'name' => $order->serviceListing->title,
-                        'description' => "Order #{$order->id} - {$order->serviceListing->title}",
+                        'description' => "Order #{$order->order_number} - {$order->serviceListing->title}",
                     ],
                     'unit_amount' => (int) ($order->total_amount * 100), // Convert to cents
                 ],
@@ -50,20 +51,26 @@ class PaymentService
             ],
         ];
 
-        return Session::create([
+        $session = Session::create([
             'payment_method_types' => ['card'],
             'line_items' => $lineItems,
             'mode' => 'payment',
             'success_url' => $successUrl,
             'cancel_url' => $cancelUrl,
             'client_reference_id' => (string) $order->id,
-            'customer_email' => $order->client->email,
+            'customer_email' => $order->clientProfile->user->email,
             'metadata' => [
                 'order_id' => $order->id,
-                'student_id' => $order->student_id,
-                'client_id' => $order->client_id,
+                'order_number' => $order->order_number,
+                'student_profile_id' => $order->student_profile_id,
+                'client_profile_id' => $order->client_profile_id,
             ],
         ]);
+
+        // Store session ID on order
+        $order->update(['stripe_session_id' => $session->id]);
+
+        return $session;
     }
 
     /**
@@ -136,7 +143,60 @@ class PaymentService
     }
 
     /**
-     * Handle successful payment from webhook
+     * Handle successful payment webhook
+     *
+     * @param string $paymentIntentId
+     * @return void
+     * @throws \Exception
+     */
+    public function handlePaymentSuccess(string $paymentIntentId): void
+    {
+        // Find order by payment intent
+        $transaction = Transaction::where('stripe_payment_intent_id', $paymentIntentId)
+            ->where('type', 'payment')
+            ->first();
+
+        if (!$transaction) {
+            throw new \Exception("Transaction not found for payment intent: {$paymentIntentId}");
+        }
+
+        $order = $transaction->order;
+
+        // Update transaction status
+        $transaction->update(['status' => 'completed']);
+
+        // Update order status to pending (awaiting student acceptance)
+        $order->update([
+            'status' => 'pending',
+            'payment_status' => 'paid',
+        ]);
+    }
+
+    /**
+     * Handle failed payment webhook
+     *
+     * @param string $paymentIntentId
+     * @return void
+     */
+    public function handlePaymentFailed(string $paymentIntentId): void
+    {
+        $transaction = Transaction::where('stripe_payment_intent_id', $paymentIntentId)
+            ->where('type', 'payment')
+            ->first();
+
+        if ($transaction) {
+            $transaction->update(['status' => 'failed']);
+            
+            $order = $transaction->order;
+            $order->update([
+                'status' => 'cancelled',
+                'payment_status' => 'failed',
+            ]);
+        }
+    }
+
+    /**
+     * Handle successful payment from webhook (session-based)
      *
      * @param Session $session The Stripe Checkout session
      * @return void
@@ -149,7 +209,7 @@ class PaymentService
         // Create payment transaction record
         Transaction::create([
             'order_id' => $order->id,
-            'user_id' => $order->client_id,
+            'user_id' => $order->clientProfile->user_id,
             'type' => 'payment',
             'amount' => $order->total_amount,
             'status' => 'completed',
@@ -160,11 +220,39 @@ class PaymentService
             ],
         ]);
 
-        // Update order payment status
+        // Update order payment status to pending (awaiting student acceptance)
         $order->update([
+            'status' => 'pending',
             'payment_status' => 'paid',
             'stripe_session_id' => $session->id,
         ]);
+    }
+
+    /**
+     * Create or retrieve Stripe customer for client
+     *
+     * @param \App\Models\ClientProfile $client
+     * @return string Stripe customer ID
+     * @throws ApiErrorException
+     */
+    public function getOrCreateStripeCustomer(\App\Models\ClientProfile $client): string
+    {
+        if ($client->stripe_customer_id) {
+            return $client->stripe_customer_id;
+        }
+
+        $customer = \Stripe\Customer::create([
+            'email' => $client->user->email,
+            'name' => $client->user->name,
+            'metadata' => [
+                'client_profile_id' => $client->id,
+                'user_id' => $client->user_id,
+            ],
+        ]);
+
+        $client->update(['stripe_customer_id' => $customer->id]);
+
+        return $customer->id;
     }
 
     /**

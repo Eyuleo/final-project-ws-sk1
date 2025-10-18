@@ -113,21 +113,21 @@ class NotificationService
      * Send order declined notification to client
      *
      * @param Order $order The order that was declined
-     * @param string $reason Reason for declining
      * @return void
      */
-    public function sendOrderDeclinedNotification(Order $order, string $reason): void
+    public function sendOrderDeclinedNotification(Order $order): void
     {
-        $client = $order->client;
+        $client = $order->clientProfile->user;
+        $reason = $order->decline_reason ?? 'No reason provided';
 
         Mail::send('emails.orders.declined', [
             'client' => $client,
             'order' => $order,
-            'student' => $order->student,
+            'student' => $order->studentProfile->user,
             'reason' => $reason,
         ], function ($message) use ($client, $order) {
             $message->to($client->email)
-                ->subject("Order Declined - Order #{$order->id}");
+                ->subject("Order Declined - Order #{$order->order_number}");
         });
 
         $this->createInAppNotification($client, [
@@ -140,28 +140,28 @@ class NotificationService
     }
 
     /**
-     * Send order delivered notification to client
+     * Send order completed notification to client
      *
-     * @param Order $order The order that was delivered
+     * @param Order $order The order that was completed
      * @return void
      */
-    public function sendOrderDeliveredNotification(Order $order): void
+    public function sendOrderCompletedNotification(Order $order): void
     {
-        $client = $order->client;
+        $client = $order->clientProfile->user;
 
-        Mail::send('emails.orders.delivered', [
+        Mail::send('emails.orders.completed', [
             'client' => $client,
             'order' => $order,
-            'student' => $order->student,
+            'student' => $order->studentProfile->user,
         ], function ($message) use ($client, $order) {
             $message->to($client->email)
-                ->subject("Order Delivered - Order #{$order->id}");
+                ->subject("Order Completed - Order #{$order->order_number}");
         });
 
         $this->createInAppNotification($client, [
-            'type' => 'order_delivered',
-            'title' => 'Order Delivered',
-            'message' => "Your order has been delivered. Please review and approve.",
+            'type' => 'order_completed',
+            'title' => 'Order Completed',
+            'message' => "Your order has been completed. Please review and approve.",
             'action_url' => route('client.orders.show', $order),
             'order_id' => $order->id,
         ]);
@@ -199,28 +199,107 @@ class NotificationService
      * Send revision requested notification to student
      *
      * @param Order $order The order that needs revision
-     * @param string $feedback Client feedback
      * @return void
      */
-    public function sendRevisionRequestedNotification(Order $order, string $feedback): void
+    public function sendRevisionRequestedNotification(Order $order): void
     {
-        $student = $order->student;
+        $student = $order->studentProfile->user;
+        $feedback = $order->revision_notes ?? '';
 
         Mail::send('emails.orders.revision-requested', [
             'student' => $student,
             'order' => $order,
-            'client' => $order->client,
+            'client' => $order->clientProfile->user,
             'feedback' => $feedback,
         ], function ($message) use ($student, $order) {
             $message->to($student->email)
-                ->subject("Revision Requested - Order #{$order->id}");
+                ->subject("Revision Requested - Order #{$order->order_number}");
         });
 
         $this->createInAppNotification($student, [
             'type' => 'revision_requested',
             'title' => 'Revision Requested',
-            'message' => "Client has requested revisions for order #{$order->id}",
+            'message' => "Client has requested revisions for order #{$order->order_number}",
             'action_url' => route('student.orders.show', $order),
+            'order_id' => $order->id,
+        ]);
+    }
+
+    /**
+     * Send dispute opened notification to both parties and admin
+     *
+     * @param Order $order The order that has a dispute
+     * @return void
+     */
+    public function sendDisputeOpenedNotification(Order $order): void
+    {
+        $student = $order->studentProfile->user;
+        $client = $order->clientProfile->user;
+
+        // Notify student
+        Mail::send('emails.orders.dispute-opened-student', [
+            'student' => $student,
+            'order' => $order,
+            'client' => $client,
+        ], function ($message) use ($student, $order) {
+            $message->to($student->email)
+                ->subject("Dispute Opened - Order #{$order->order_number}");
+        });
+
+        // Notify client
+        Mail::send('emails.orders.dispute-opened-client', [
+            'client' => $client,
+            'order' => $order,
+            'student' => $student,
+        ], function ($message) use ($client, $order) {
+            $message->to($client->email)
+                ->subject("Dispute Opened - Order #{$order->order_number}");
+        });
+
+        $this->createInAppNotification($student, [
+            'type' => 'dispute_opened',
+            'title' => 'Dispute Opened',
+            'message' => "A dispute has been opened for order #{$order->order_number}",
+            'action_url' => route('student.orders.show', $order),
+            'order_id' => $order->id,
+        ]);
+    }
+
+    /**
+     * Send order cancelled notification
+     *
+     * @param Order $order The order that was cancelled
+     * @return void
+     */
+    public function sendOrderCancelledNotification(Order $order): void
+    {
+        $student = $order->studentProfile->user;
+        $client = $order->clientProfile->user;
+
+        // Notify both parties
+        Mail::send('emails.orders.cancelled', [
+            'order' => $order,
+            'student' => $student,
+            'client' => $client,
+            'reason' => $order->cancellation_reason,
+        ], function ($message) use ($student, $client, $order) {
+            $message->to([$student->email, $client->email])
+                ->subject("Order Cancelled - Order #{$order->order_number}");
+        });
+
+        $this->createInAppNotification($student, [
+            'type' => 'order_cancelled',
+            'title' => 'Order Cancelled',
+            'message' => "Order #{$order->order_number} has been cancelled",
+            'action_url' => route('student.orders.show', $order),
+            'order_id' => $order->id,
+        ]);
+
+        $this->createInAppNotification($client, [
+            'type' => 'order_cancelled',
+            'title' => 'Order Cancelled',
+            'message' => "Order #{$order->order_number} has been cancelled",
+            'action_url' => route('client.orders.show', $order),
             'order_id' => $order->id,
         ]);
     }

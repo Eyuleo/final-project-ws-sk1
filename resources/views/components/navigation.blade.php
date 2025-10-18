@@ -42,9 +42,7 @@
                             <x-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
                                 {{ __('My Orders') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
-                                {{ __('Messages') }}
-                            </x-nav-link>
+                            
                         @elseif(Auth::user()->role === 'admin')
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                                 {{ __('Admin Panel') }}
@@ -177,9 +175,7 @@
                     <x-responsive-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
                         {{ __('My Orders') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
-                        {{ __('Messages') }}
-                    </x-responsive-nav-link>
+                  
                 @elseif(Auth::user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                         {{ __('Admin Panel') }}

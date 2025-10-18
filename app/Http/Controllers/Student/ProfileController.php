@@ -27,16 +27,16 @@ class ProfileController extends Controller
         $profile = $user->studentProfile;
 
         // Load relationships for display
-        $user->load(['studentProfile', 'serviceListings' => function ($query) {
+        $user->load(['studentProfile.serviceListings' => function ($query) {
             $query->where('status', 'active')->latest()->take(6);
         }]);
 
         // Get statistics
         $stats = [
-            'total_orders' => $user->studentOrders()->count(),
-            'completed_orders' => $user->studentOrders()->where('status', 'completed')->count(),
-            'active_services' => $user->serviceListings()->where('status', 'active')->count(),
-            'total_earnings' => $user->available_balance + $user->withdrawn_balance,
+            'total_orders' => $profile->studentOrders()->count(),
+            'completed_orders' => $profile->studentOrders()->where('status', 'completed')->count(),
+            'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
+            'total_earnings' => $profile->available_balance + $profile->withdrawn_balance,
         ];
 
         return view('student.profile.show', compact('user', 'profile', 'stats'));
@@ -163,23 +163,23 @@ class ProfileController extends Controller
         $profile = $user->studentProfile;
 
         // Get student's services
-        $services = $user->serviceListings()
+        $services = $profile->serviceListings()
             ->where('status', 'active')
             ->latest()
             ->get();
 
         // Get reviews
-        $reviews = $user->receivedReviews()
-            ->with('client')
+        $reviews = $user->reviewsReceived()
+            ->with('reviewer')
             ->latest()
             ->take(10)
             ->get();
 
         // Get statistics
         $stats = [
-            'total_orders' => $user->studentOrders()->count(),
-            'completed_orders' => $user->studentOrders()->where('status', 'completed')->count(),
-            'active_services' => $user->serviceListings()->where('status', 'active')->count(),
+            'total_orders' => $profile->studentOrders()->count(),
+            'completed_orders' => $profile->studentOrders()->where('status', 'completed')->count(),
+            'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
         ];
 
         return view('student.profile.public', compact('user', 'profile', 'services', 'reviews', 'stats'));

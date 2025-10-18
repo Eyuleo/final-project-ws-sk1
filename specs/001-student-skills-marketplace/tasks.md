@@ -196,20 +196,20 @@
 
 ### Implementation for User Story 4
 
-- [ ] T093 [P] [US4] Create PlaceOrderRequest form request in `app/Http/Requests/Client/PlaceOrderRequest.php`
-- [ ] T094 [US4] Create OrderService in `app/Services/OrderService.php` with order lifecycle methods
-- [ ] T095 [US4] Create Client OrderController in `app/Http/Controllers/Client/OrderController.php` with create, store, success, cancel methods
-- [ ] T096 [P] [US4] Create order create view in `resources/views/client/orders/create.blade.php`
-- [ ] T097 [P] [US4] Create order success view in `resources/views/client/orders/success.blade.php`
-- [ ] T098 [US4] Implement Stripe Checkout session creation in PaymentService
-- [ ] T099 [US4] Implement escrow fund holding in EscrowService
-- [ ] T100 [US4] Create Stripe webhook controller in `app/Http/Controllers/StripeWebhookController.php`
-- [ ] T101 [US4] Add Stripe webhook route to `routes/web.php` (exclude CSRF)
-- [ ] T102 [US4] Implement order calculation (subtotal, platform fee, total) in OrderService
-- [ ] T103 [US4] Create order notification job in `app/Jobs/SendOrderNotification.php`
-- [ ] T104 [US4] Implement order notification emails in NotificationService
-- [ ] T105 [US4] Add client order routes to `routes/web.php` with client middleware
-- [ ] T106 [US4] Create OrderPolicy in `app/Policies/OrderPolicy.php` for authorization
+- [x] T093 [P] [US4] Create PlaceOrderRequest form request in `app/Http/Requests/Client/PlaceOrderRequest.php`
+- [x] T094 [US4] Create OrderService in `app/Services/OrderService.php` with order lifecycle methods
+- [x] T095 [US4] Create Client OrderController in `app/Http/Controllers/Client/OrderController.php` with create, store, success, cancel methods
+- [x] T096 [P] [US4] Create order create view in `resources/views/client/orders/create.blade.php`
+- [x] T097 [P] [US4] Create order success view in `resources/views/client/orders/success.blade.php`
+- [x] T098 [US4] Implement Stripe Checkout session creation in PaymentService
+- [x] T099 [US4] Implement escrow fund holding in EscrowService
+- [x] T100 [US4] Create Stripe webhook controller in `app/Http/Controllers/StripeWebhookController.php`
+- [x] T101 [US4] Add Stripe webhook route to `routes/web.php` (exclude CSRF)
+- [x] T102 [US4] Implement order calculation (subtotal, platform fee, total) in OrderService
+- [x] T103 [US4] Create order notification job in `app/Jobs/SendOrderNotification.php`
+- [x] T104 [US4] Implement order notification emails in NotificationService
+- [x] T105 [US4] Add client order routes to `routes/web.php` with client middleware
+- [x] T106 [US4] Create OrderPolicy in `app/Policies/OrderPolicy.php` for authorization
 
 **Checkpoint**: Clients can place orders, make payments via Stripe, funds held in escrow, students notified
 
