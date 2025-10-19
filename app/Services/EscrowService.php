@@ -30,10 +30,13 @@ class EscrowService
             // Create escrow hold transaction
             $transaction = Transaction::create([
                 'order_id' => $order->id,
-                'user_id' => $order->student_id,
+                'user_id' => $order->studentProfile->user_id,
                 'type' => 'escrow_hold',
                 'amount' => $order->total_amount,
+                'fee' => 0,
+                'net_amount' => $order->total_amount,
                 'status' => 'pending',
+                'description' => "Escrow hold for Order #{$order->order_number}",
                 'metadata' => [
                     'held_at' => now()->toIso8601String(),
                     'auto_release_at' => now()->addDays(7)->toIso8601String(),

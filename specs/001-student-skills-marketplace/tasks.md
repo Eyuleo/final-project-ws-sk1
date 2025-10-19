@@ -223,20 +223,20 @@
 
 ### Implementation for User Story 5
 
-- [ ] T107 [P] [US5] Create DeclineOrderRequest form request in `app/Http/Requests/Student/DeclineOrderRequest.php`
-- [ ] T108 [P] [US5] Create UploadDeliverablesRequest form request in `app/Http/Requests/Student/UploadDeliverablesRequest.php`
-- [ ] T109 [P] [US5] Create RequestRevisionRequest form request in `app/Http/Requests/Client/RequestRevisionRequest.php`
-- [ ] T110 [US5] Create Student OrderController in `app/Http/Controllers/Student/OrderController.php` with index, show, accept, decline, updateStatus, uploadDeliverables methods
-- [ ] T111 [P] [US5] Create student orders index view in `resources/views/student/orders/index.blade.php`
-- [ ] T112 [P] [US5] Create student order show view in `resources/views/student/orders/show.blade.php`
-- [ ] T113 [P] [US5] Create client orders index view in `resources/views/client/orders/index.blade.php`
-- [ ] T114 [P] [US5] Create client order show view in `resources/views/client/orders/show.blade.php`
-- [ ] T115 [US5] Add order management methods to Client OrderController (approve, requestRevision)
-- [ ] T116 [US5] Implement order status transitions in OrderService (accept, decline, startWork, submitDeliverables, approve, requestRevision)
-- [ ] T117 [US5] Implement deliverable file upload in FileUploadService
-- [ ] T118 [US5] Implement escrow release in EscrowService when order approved
-- [ ] T119 [US5] Add student order routes to `routes/web.php` with student middleware
-- [ ] T120 [US5] Create order status update notifications in NotificationService
+- [x] T107 [P] [US5] Create DeclineOrderRequest form request in `app/Http/Requests/Student/DeclineOrderRequest.php`
+- [x] T108 [P] [US5] Create UploadDeliverablesRequest form request in `app/Http/Requests/Student/UploadDeliverablesRequest.php`
+- [x] T109 [P] [US5] Create RequestRevisionRequest form request in `app/Http/Requests/Client/RequestRevisionRequest.php`
+- [x] T110 [US5] Create Student OrderController in `app/Http/Controllers/Student/OrderController.php` with index, show, accept, decline, updateStatus, uploadDeliverables methods
+- [x] T111 [P] [US5] Create student orders index view in `resources/views/student/orders/index.blade.php`
+- [x] T112 [P] [US5] Create student order show view in `resources/views/student/orders/show.blade.php`
+- [x] T113 [P] [US5] Create client orders index view in `resources/views/client/orders/index.blade.php`
+- [x] T114 [P] [US5] Create client order show view in `resources/views/client/orders/show.blade.php`
+- [x] T115 [US5] Add order management methods to Client OrderController (approve, requestRevision)
+- [x] T116 [US5] Implement order status transitions in OrderService (accept, decline, startWork, submitDeliverables, approve, requestRevision)
+- [x] T117 [US5] Implement deliverable file upload in FileUploadService
+- [x] T118 [US5] Implement escrow release in EscrowService when order approved
+- [x] T119 [US5] Add student order routes to `routes/web.php` with student middleware
+- [x] T120 [US5] Create order status update notifications in NotificationService
 
 **Checkpoint**: Students can manage orders and upload deliverables, clients can approve or request revisions, escrow released on approval
 

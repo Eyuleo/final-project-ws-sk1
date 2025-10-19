@@ -16,6 +16,11 @@ return Application::configure(basePath: dirname(__DIR__))
             'client' => \App\Http\Middleware\EnsureUserIsClient::class,
             'admin' => \App\Http\Middleware\EnsureUserIsAdmin::class,
         ]);
+        
+        // Exclude Stripe webhook from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'stripe/webhook',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

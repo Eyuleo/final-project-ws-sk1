@@ -7,7 +7,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Intervention\Image\Facades\Image;
+use Intervention\Image\Laravel\Facades\Image;
 
 /**
  * FileUploadService handles all file upload operations including:
@@ -45,31 +45,21 @@ class FileUploadService
     {
         $this->validateImage($file);
 
-        // Generate unique filename
-        $filename = $this->generateFilename($file, 'profile');
+        // Generate unique filename with jpg extension
+        $filename = 'profile_' . now()->timestamp . '_' . Str::random(8) . '.jpg';
+        $path = "profiles/{$userId}/{$filename}";
 
         // Optimize and resize image
-        $image = Image::make($file);
+        $image = Image::read($file);
         
         // Resize to max 800x800 while maintaining aspect ratio
-        $image->resize(800, 800, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
+        $image->scale(width: 800, height: 800);
 
-        // Optimize quality
-        $image->encode('jpg', 85);
+        // Save as JPEG with quality 85
+        $encodedImage = $image->toJpeg(quality: 85);
 
         // Store the optimized image
-        $path = "profiles/{$userId}/{$filename}";
-        Storage::disk('public')->put($path, (string) $image);
-
-        // Create thumbnail (200x200)
-        $thumbnail = Image::make($file);
-        $thumbnail->fit(200, 200);
-        $thumbnail->encode('jpg', 80);
-        $thumbnailPath = "profiles/{$userId}/thumb_{$filename}";
-        Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+        Storage::disk('public')->put($path, $encodedImage);
 
         return $path;
     }
@@ -112,13 +102,14 @@ class FileUploadService
      * Upload order deliverable files
      *
      * @param UploadedFile $file The uploaded file
-     * @param int $orderId The order ID
-     * @return array File information [path, type, size, original_name]
+     * @param \App\Models\Order|int $order The order model or order ID
+     * @return string The stored file path
      */
-    public function uploadDeliverable(UploadedFile $file, int $orderId): array
+    public function uploadDeliverable(UploadedFile $file, $order): string
     {
         $this->validateDeliverableFile($file);
 
+        $orderId = is_object($order) ? $order->id : $order;
         $filename = $this->generateFilename($file, 'deliverable');
         $path = "deliverables/{$orderId}/{$filename}";
 
@@ -129,12 +120,7 @@ class FileUploadService
             $filename
         );
 
-        return [
-            'path' => $path,
-            'type' => $file->getMimeType(),
-            'size' => $file->getSize(),
-            'original_name' => $file->getClientOriginalName(),
-        ];
+        return $path;
     }
 
     /**
@@ -169,6 +155,52 @@ class FileUploadService
             'size' => $file->getSize(),
             'original_name' => $file->getClientOriginalName(),
         ];
+    }
+
+    /**
+     * Upload order attachment (requirements files)
+     *
+     * @param UploadedFile $file The uploaded file
+     * @return string The stored file path
+     */
+    public function uploadOrderAttachment(UploadedFile $file): string
+    {
+        $this->validateMessageAttachment($file);
+
+        $filename = $this->generateFilename($file, 'order_attachment');
+        $path = "order_attachments/{$filename}";
+
+        // Store the file
+        Storage::disk('public')->putFileAs(
+            "order_attachments",
+            $file,
+            $filename
+        );
+
+        return $path;
+    }
+
+    /**
+     * Upload dispute evidence file
+     *
+     * @param UploadedFile $file The uploaded file
+     * @return string The stored file path
+     */
+    public function uploadDisputeEvidence(UploadedFile $file): string
+    {
+        $this->validateMessageAttachment($file);
+
+        $filename = $this->generateFilename($file, 'dispute_evidence');
+        $path = "dispute_evidence/{$filename}";
+
+        // Store the file
+        Storage::disk('public')->putFileAs(
+            "dispute_evidence",
+            $file,
+            $filename
+        );
+
+        return $path;
     }
 
     /**
@@ -232,12 +264,8 @@ class FileUploadService
      */
     protected function createThumbnail(UploadedFile $file, string $directory, string $filename): void
     {
-        $thumbnail = Image::make($file);
-        $thumbnail->fit(300, 300);
-        $thumbnail->encode('jpg', 80);
-        
-        $thumbnailPath = "{$directory}/thumb_{$filename}";
-        Storage::disk('public')->put($thumbnailPath, (string) $thumbnail);
+        // Skip thumbnail creation for now
+        // TODO: Implement thumbnail creation with GD or install Intervention Image
     }
 
     /**

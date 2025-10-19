@@ -42,7 +42,9 @@
                             <x-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
                                 {{ __('My Orders') }}
                             </x-nav-link>
-                            
+                            <x-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
+                                {{ __('Messages') }}
+                            </x-nav-link>
                         @elseif(Auth::user()->role === 'admin')
                             <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                                 {{ __('Admin Panel') }}
@@ -108,11 +110,14 @@
                                 <x-dropdown-link :href="route('student.profile.edit')">
                                     {{ __('Edit Profile') }}
                                 </x-dropdown-link>
+                            @elseif(Auth::user()->role === 'client')
+                                <x-dropdown-link :href="route('client.profile.show')">
+                                    {{ __('My Profile') }}
+                                </x-dropdown-link>
+                                <x-dropdown-link :href="route('client.profile.edit')">
+                                    {{ __('Edit Profile') }}
+                                </x-dropdown-link>
                             @endif
-                            
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Account Settings') }}
-                            </x-dropdown-link>
 
                             <div class="border-t border-gray-100"></div>
 
@@ -175,7 +180,9 @@
                     <x-responsive-nav-link :href="route('client.orders.index')" :active="request()->routeIs('client.orders.*')">
                         {{ __('My Orders') }}
                     </x-responsive-nav-link>
-                  
+                    <x-responsive-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
+                        {{ __('Messages') }}
+                    </x-responsive-nav-link>
                 @elseif(Auth::user()->role === 'admin')
                     <x-responsive-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.*')">
                         {{ __('Admin Panel') }}
@@ -195,11 +202,17 @@
                         <x-responsive-nav-link :href="route('student.profile.show')">
                             {{ __('My Profile') }}
                         </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('student.profile.edit')">
+                            {{ __('Edit Profile') }}
+                        </x-responsive-nav-link>
+                    @elseif(Auth::user()->role === 'client')
+                        <x-responsive-nav-link :href="route('client.profile.show')">
+                            {{ __('My Profile') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('client.profile.edit')">
+                            {{ __('Edit Profile') }}
+                        </x-responsive-nav-link>
                     @endif
-                    
-                    <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Account Settings') }}
-                    </x-responsive-nav-link>
 
                     <!-- Authentication -->
                     <form method="POST" action="{{ route('logout') }}">

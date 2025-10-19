@@ -212,8 +212,12 @@ class PaymentService
             'user_id' => $order->clientProfile->user_id,
             'type' => 'payment',
             'amount' => $order->total_amount,
+            'fee' => 0, // No fee for client payment
+            'net_amount' => $order->total_amount,
             'status' => 'completed',
             'stripe_payment_intent_id' => $session->payment_intent,
+            'stripe_transaction_id' => $session->id,
+            'description' => "Payment for Order #{$order->order_number}",
             'metadata' => [
                 'session_id' => $session->id,
                 'payment_status' => $session->payment_status,

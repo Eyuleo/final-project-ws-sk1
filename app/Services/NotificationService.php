@@ -28,19 +28,36 @@ class NotificationService
      */
     public function sendOrderPlacedNotification(Order $order): void
     {
-        $student = $order->student;
-        $client = $order->client;
+        \Log::info('sendOrderPlacedNotification called', ['order_id' => $order->id]);
+        
+        $student = $order->studentProfile->user;
+        $client = $order->clientProfile->user;
+
+        \Log::info('Preparing to send student email', [
+            'student_email' => $student->email,
+            'order_number' => $order->order_number,
+        ]);
 
         // Send email notification
-        Mail::send('emails.orders.placed-student', [
-            'student' => $student,
-            'client' => $client,
-            'order' => $order,
-            'service' => $order->serviceListing,
-        ], function ($message) use ($student, $order) {
-            $message->to($student->email)
-                ->subject("New Order Received - Order #{$order->id}");
-        });
+        try {
+            Mail::send('emails.orders.placed-student', [
+                'student' => $student,
+                'client' => $client,
+                'order' => $order,
+                'service' => $order->serviceListing,
+            ], function ($message) use ($student, $order) {
+                $message->to($student->email)
+                    ->subject("New Order Received - Order #{$order->order_number}");
+            });
+            
+            \Log::info('Student email sent successfully', ['to' => $student->email]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send student email', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         // Create in-app notification
         $this->createInAppNotification($student, [
@@ -60,22 +77,39 @@ class NotificationService
      */
     public function sendOrderConfirmationNotification(Order $order): void
     {
-        $client = $order->client;
+        \Log::info('sendOrderConfirmationNotification called', ['order_id' => $order->id]);
+        
+        $client = $order->clientProfile->user;
 
-        Mail::send('emails.orders.confirmation', [
-            'client' => $client,
-            'order' => $order,
-            'service' => $order->serviceListing,
-            'student' => $order->student,
-        ], function ($message) use ($client, $order) {
-            $message->to($client->email)
-                ->subject("Order Confirmed - Order #{$order->id}");
-        });
+        \Log::info('Preparing to send client email', [
+            'client_email' => $client->email,
+            'order_number' => $order->order_number,
+        ]);
+
+        try {
+            Mail::send('emails.orders.confirmation', [
+                'client' => $client,
+                'order' => $order,
+                'service' => $order->serviceListing,
+                'student' => $order->studentProfile->user,
+            ], function ($message) use ($client, $order) {
+                $message->to($client->email)
+                    ->subject("Order Confirmed - Order #{$order->order_number}");
+            });
+            
+            \Log::info('Client email sent successfully', ['to' => $client->email]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send client email', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            throw $e;
+        }
 
         $this->createInAppNotification($client, [
             'type' => 'order_confirmed',
             'title' => 'Order Confirmed',
-            'message' => "Your order #{$order->id} has been confirmed and is in progress",
+            'message' => "Your order #{$order->order_number} has been confirmed and is in progress",
             'action_url' => route('client.orders.show', $order),
             'order_id' => $order->id,
         ]);

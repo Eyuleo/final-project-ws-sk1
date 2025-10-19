@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
+use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\Client\ServiceDiscoveryController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\Student\OrderController as StudentOrderController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ServiceListingController;
 use App\Services\SearchService;
@@ -68,10 +70,23 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::resource('services', ServiceListingController::class);
     Route::patch('/services/{service}/toggle-status', [ServiceListingController::class, 'toggleStatus'])->name('services.toggle-status');
     Route::delete('/services/{service}/samples/{index}', [ServiceListingController::class, 'deleteSample'])->name('services.delete-sample');
+    
+    // Order management routes
+    Route::get('/orders', [StudentOrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [StudentOrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/accept', [StudentOrderController::class, 'accept'])->name('orders.accept');
+    Route::post('/orders/{order}/decline', [StudentOrderController::class, 'decline'])->name('orders.decline');
+    Route::post('/orders/{order}/start', [StudentOrderController::class, 'updateStatus'])->name('orders.start');
+    Route::post('/orders/{order}/upload', [StudentOrderController::class, 'uploadDeliverables'])->name('orders.upload');
 });
 
-// Client order routes
+// Client routes
 Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(function () {
+    // Profile routes
+    Route::get('/profile', [ClientProfileController::class, 'show'])->name('profile.show');
+    Route::get('/profile/edit', [ClientProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ClientProfileController::class, 'update'])->name('profile.update');
+    
     // Service discovery routes (client-specific views)
     Route::get('/services', [ServiceDiscoveryController::class, 'index'])->name('services.index');
     Route::get('/services/{service}', [ServiceDiscoveryController::class, 'show'])->name('services.show');
@@ -90,10 +105,24 @@ Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(
     Route::post('/orders/{order}/dispute', [ClientOrderController::class, 'dispute'])->name('orders.dispute');
 });
 
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// Generic profile routes (Breeze default) - Replaced by role-specific routes above
+// Route::middleware('auth')->group(function () {
+//     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+//     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+//     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+// });
+
+// Test email route (remove after testing)
+Route::get('/test-email', function () {
+    try {
+        \Illuminate\Support\Facades\Mail::raw('Test email from Laravel', function ($message) {
+            $message->to('eyualxprogram@gmail.com')
+                ->subject('Test Email');
+        });
+        return 'Email sent! Check your logs or mail service.';
+    } catch (\Exception $e) {
+        return 'Email failed: ' . $e->getMessage();
+    }
 });
 
 require __DIR__.'/auth.php';

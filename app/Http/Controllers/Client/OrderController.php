@@ -197,8 +197,10 @@ class OrderController extends Controller
      */
     public function requestRevision(RequestRevisionRequest $request, Order $order)
     {
+        $this->authorize('requestRevision', $order);
+
         try {
-            $this->orderService->requestRevision($order, $request->revision_notes);
+            $this->orderService->requestRevision($order, $request->revision_reason);
 
             return redirect()->route('client.orders.show', $order)
                 ->with('success', 'Revision requested. The student has been notified.');

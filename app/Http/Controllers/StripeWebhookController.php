@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\PaymentService;
 use App\Services\EscrowService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Stripe\Webhook;
@@ -13,7 +14,8 @@ class StripeWebhookController extends Controller
 {
     public function __construct(
         protected PaymentService $paymentService,
-        protected EscrowService $escrowService
+        protected EscrowService $escrowService,
+        protected NotificationService $notificationService
     ) {}
 
     /**
@@ -21,8 +23,23 @@ class StripeWebhookController extends Controller
      */
     public function handleWebhook(Request $request)
     {
+        \Log::info('=== WEBHOOK RECEIVED ===', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+        ]);
+        
+        // Disable Telescope for webhooks to prevent database errors
+        if (class_exists(\Laravel\Telescope\Telescope::class)) {
+            \Laravel\Telescope\Telescope::stopRecording();
+        }
+        
         $payload = $request->getContent();
         $signature = $request->header('Stripe-Signature');
+        
+        \Log::info('Webhook payload received', [
+            'has_signature' => !empty($signature),
+            'payload_length' => strlen($payload),
+        ]);
 
         try {
             $event = $this->paymentService->verifyWebhookSignature($payload, $signature);
@@ -40,9 +57,16 @@ class StripeWebhookController extends Controller
 
         // Handle the event
         try {
+            \Log::info('Processing webhook event', [
+                'event_type' => $event->type,
+                'event_id' => $event->id,
+            ]);
+            
             switch ($event->type) {
                 case 'checkout.session.completed':
+                    \Log::info('Handling checkout.session.completed');
                     $this->handleCheckoutSessionCompleted($event->data->object);
+                    \Log::info('Finished handling checkout.session.completed');
                     break;
 
                 case 'payment_intent.succeeded':
@@ -67,13 +91,14 @@ class StripeWebhookController extends Controller
             return response()->json(['status' => 'success']);
         } catch (\Exception $e) {
             Log::error('Error processing Stripe webhook', [
-                'event_type' => $event->type,
-                'event_id' => $event->id,
+                'event_type' => $event->type ?? 'unknown',
+                'event_id' => $event->id ?? 'unknown',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return response()->json(['error' => 'Processing error'], 500);
+            // Return 200 to prevent Stripe from retrying
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 200);
         }
     }
 
@@ -88,21 +113,53 @@ class StripeWebhookController extends Controller
         ]);
 
         if ($session->payment_status === 'paid') {
+            Log::info('Processing paid checkout session', [
+                'session_id' => $session->id,
+                'payment_status' => $session->payment_status,
+            ]);
+            
             $this->paymentService->handleSuccessfulPayment($session);
             
             // Hold funds in escrow
             $orderId = $session->metadata->order_id ?? $session->client_reference_id;
+            Log::info('Extracted order ID from session', ['order_id' => $orderId]);
+            
             if ($orderId) {
                 $order = \App\Models\Order::find($orderId);
                 if ($order) {
+                    Log::info('Order found, processing escrow and notifications', [
+                        'order_id' => $order->id,
+                        'order_number' => $order->order_number,
+                    ]);
+                    
                     $this->escrowService->holdFunds($order);
                     
-                    Log::info('Funds held in escrow', [
+                    // Send notifications to both client and student
+                    try {
+                        Log::info('Sending student notification');
+                        $this->notificationService->sendOrderPlacedNotification($order);
+                        Log::info('Student notification sent successfully');
+                        
+                        Log::info('Sending client notification');
+                        $this->notificationService->sendOrderConfirmationNotification($order);
+                        Log::info('Client notification sent successfully');
+                    } catch (\Exception $e) {
+                        Log::error('Failed to send notifications', [
+                            'error' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString(),
+                        ]);
+                    }
+                    
+                    Log::info('Funds held in escrow and notifications sent', [
                         'order_id' => $order->id,
                         'order_number' => $order->order_number,
                         'amount' => $order->total_amount,
                     ]);
+                } else {
+                    Log::warning('Order not found', ['order_id' => $orderId]);
                 }
+            } else {
+                Log::warning('No order ID found in session metadata');
             }
         }
     }
