@@ -4,13 +4,18 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\Client\ServiceDiscoveryController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\Student\OrderController as StudentOrderController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ServiceListingController;
 use App\Services\SearchService;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
+
+// Register broadcast authentication routes
+Broadcast::routes(['middleware' => ['web', 'auth']]);
 
 // Homepage with featured services
 Route::get('/', function (SearchService $searchService) {
@@ -103,6 +108,14 @@ Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(
     Route::post('/orders/{order}/approve', [ClientOrderController::class, 'approve'])->name('orders.approve');
     Route::post('/orders/{order}/revision', [ClientOrderController::class, 'requestRevision'])->name('orders.revision');
     Route::post('/orders/{order}/dispute', [ClientOrderController::class, 'dispute'])->name('orders.dispute');
+});
+
+// Message routes (accessible to both students and clients)
+Route::middleware(['auth'])->group(function () {
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{order}', [MessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::post('/messages/{message}/read', [MessageController::class, 'markAsRead'])->name('messages.read');
 });
 
 // Generic profile routes (Breeze default) - Replaced by role-specific routes above

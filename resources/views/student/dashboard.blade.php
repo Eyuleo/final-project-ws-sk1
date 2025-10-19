@@ -80,7 +80,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-500">Active Orders</p>
-                            <p class="text-2xl font-semibold text-gray-900">{{ Auth::user()->studentOrders()->whereIn('status', ['pending', 'accepted', 'in_progress', 'delivered'])->count() }}</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ Auth::user()->studentProfile->orders()->whereIn('status', ['pending', 'accepted', 'in_progress', 'delivered'])->count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-500">Active Services</p>
-                            <p class="text-2xl font-semibold text-gray-900">{{ Auth::user()->serviceListings()->where('status', 'active')->count() }}</p>
+                            <p class="text-2xl font-semibold text-gray-900">{{ Auth::user()->studentProfile->serviceListings()->where('status', 'active')->count() }}</p>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,7 @@
                     </div>
                     
                     @php
-                        $recentOrders = Auth::user()->studentOrders()->latest()->take(5)->get();
+                        $recentOrders = Auth::user()->studentProfile->orders()->latest()->take(5)->get();
                     @endphp
 
                     @if($recentOrders->count() > 0)
@@ -188,7 +188,7 @@
                 </div>
 
                 @php
-                    $services = Auth::user()->serviceListings()->latest()->take(3)->get();
+                    $services = Auth::user()->studentProfile->serviceListings()->latest()->take(3)->get();
                 @endphp
 
                 @if($services->count() > 0)

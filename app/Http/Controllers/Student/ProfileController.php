@@ -33,8 +33,8 @@ class ProfileController extends Controller
 
         // Get statistics
         $stats = [
-            'total_orders' => $profile->studentOrders()->count(),
-            'completed_orders' => $profile->studentOrders()->where('status', 'completed')->count(),
+            'total_orders' => $profile->orders()->count(),
+            'completed_orders' => $profile->orders()->where('status', 'completed')->count(),
             'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
             'total_earnings' => $profile->available_balance + $profile->withdrawn_balance,
         ];
@@ -177,8 +177,8 @@ class ProfileController extends Controller
 
         // Get statistics
         $stats = [
-            'total_orders' => $profile->studentOrders()->count(),
-            'completed_orders' => $profile->studentOrders()->where('status', 'completed')->count(),
+            'total_orders' => $profile->orders()->count(),
+            'completed_orders' => $profile->orders()->where('status', 'completed')->count(),
             'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
         ];
 

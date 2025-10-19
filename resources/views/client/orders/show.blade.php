@@ -160,7 +160,7 @@
 
                         @if($order->status === 'completed')
                             <!-- Approve/Revision Actions -->
-                            <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-4 flex-wrap gap-2">
                                 <form method="POST" action="{{ route('client.orders.approve', $order) }}" class="inline">
                                     @csrf
                                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150">
@@ -182,6 +182,20 @@
                     </div>
                 </div>
             @endif
+
+            <!-- Message Provider Section (Available for all order statuses) -->
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Communication</h3>
+                    <p class="text-sm text-gray-600 mb-4">Have questions or need to discuss the order? Send a message to the provider.</p>
+                    <a href="{{ route('messages.show', $order) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                        </svg>
+                        Message Provider
+                    </a>
+                </div>
+            </div>
 
             <!-- Payment Breakdown -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

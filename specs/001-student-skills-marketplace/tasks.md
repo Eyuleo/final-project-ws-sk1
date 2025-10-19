@@ -250,19 +250,19 @@
 
 ### Implementation for User Story 6
 
-- [ ] T121 [P] [US6] Create MessageRequest form request in `app/Http/Requests/MessageRequest.php`
-- [ ] T122 [US6] Create MessageController in `app/Http/Controllers/MessageController.php` with index, show, store, markAsRead methods
-- [ ] T123 [P] [US6] Create messages index view in `resources/views/messages/index.blade.php`
-- [ ] T124 [P] [US6] Create message show view (conversation) in `resources/views/messages/show.blade.php`
-- [ ] T125 [P] [US6] Create message-thread component in `resources/views/components/message-thread.blade.php`
-- [ ] T126 [US6] Configure Laravel Echo and Pusher in `resources/js/bootstrap.js`
-- [ ] T127 [US6] Create MessageSent event in `app/Events/MessageSent.php` for broadcasting
-- [ ] T128 [US6] Implement real-time message broadcasting with Pusher
-- [ ] T129 [US6] Add message routes to `routes/web.php` with auth middleware
-- [ ] T130 [US6] Create MessagePolicy in `app/Policies/MessagePolicy.php` for authorization
-- [ ] T131 [US6] Implement message attachment upload in FileUploadService
-- [ ] T132 [US6] Create message notification job in `app/Jobs/SendMessageNotification.php`
-- [ ] T133 [US6] Add JavaScript for real-time message updates in `resources/js/app.js`
+- [x] T121 [P] [US6] Create MessageRequest form request in `app/Http/Requests/MessageRequest.php`
+- [x] T122 [US6] Create MessageController in `app/Http/Controllers/MessageController.php` with index, show, store, markAsRead methods
+- [x] T123 [P] [US6] Create messages index view in `resources/views/messages/index.blade.php`
+- [x] T124 [P] [US6] Create message show view (conversation) in `resources/views/messages/show.blade.php`
+- [x] T125 [P] [US6] Create message-thread component in `resources/views/components/message-thread.blade.php`
+- [x] T126 [US6] Configure Laravel Echo and Pusher in `resources/js/bootstrap.js`
+- [x] T127 [US6] Create MessageSent event in `app/Events/MessageSent.php` for broadcasting
+- [x] T128 [US6] Implement real-time message broadcasting with Pusher
+- [x] T129 [US6] Add message routes to `routes/web.php` with auth middleware
+- [x] T130 [US6] Create MessagePolicy in `app/Policies/MessagePolicy.php` for authorization
+- [x] T131 [US6] Implement message attachment upload in FileUploadService
+- [x] T132 [US6] Create message notification job in `app/Jobs/SendMessageNotification.php`
+- [x] T133 [US6] Add JavaScript for real-time message updates in `resources/js/app.js`
 
 **Checkpoint**: Students and clients can send messages, attach files, receive real-time notifications, view conversation history
 

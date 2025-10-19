@@ -33,6 +33,7 @@ class Message extends Model
     protected function casts(): array
     {
         return [
+            'attachment_path' => 'json',
             'is_read' => 'boolean',
             'read_at' => 'datetime',
         ];
