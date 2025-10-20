@@ -81,7 +81,7 @@
                     <div class="p-6">
                         <!-- Category Badge -->
                         <p class="text-xs font-medium text-blue-600 uppercase tracking-wide mb-2">
-                            {{ str_replace('_', ' ', $service->category) }}
+                            {{ $service->category->name ?? 'Uncategorized' }}
                         </p>
 
                         <!-- Title -->
@@ -118,12 +118,12 @@
                 </div>
 
                 <!-- Portfolio Samples -->
-                @if($service->portfolio_samples && count($service->portfolio_samples) > 0)
+                @if($service->portfolio_files && count($service->portfolio_files) > 0)
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                         <div class="p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Samples</h3>
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                @foreach($service->portfolio_samples as $sample)
+                                @foreach($service->portfolio_files as $sample)
                                     <div class="relative group cursor-pointer">
                                         @if(str_starts_with($sample['type'], 'image/'))
                                             <img src="{{ Storage::url($sample['thumbnail'] ?? $sample['path']) }}" alt="{{ $sample['original_name'] }}" class="w-full h-40 object-cover rounded-lg shadow-md group-hover:shadow-xl transition">
@@ -188,13 +188,13 @@
                                 <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
-                                {{ $service->delivery_time }} day{{ $service->delivery_time > 1 ? 's' : '' }} delivery
+                                {{ $service->delivery_days }} day{{ $service->delivery_days > 1 ? 's' : '' }} delivery
                             </div>
                             <div class="flex items-center text-sm text-gray-600">
                                 <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
-                                {{ $service->revisions }} revision{{ $service->revisions != 1 ? 's' : '' }}
+                                {{ $service->revisions ?? 2 }} revision{{ ($service->revisions ?? 2) != 1 ? 's' : '' }}
                             </div>
                         </div>
 
@@ -255,7 +255,7 @@
                             </div>
                             <div>
                                 <p class="text-gray-500">Category</p>
-                                <p class="font-medium text-gray-900">{{ str_replace('_', ' ', ucwords($service->category)) }}</p>
+                                <p class="font-medium text-gray-900">{{ $service->category->name ?? 'Uncategorized' }}</p>
                             </div>
                         </div>
                     </div>

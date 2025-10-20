@@ -63,16 +63,27 @@
                                     <h3 class="text-lg font-semibold mb-3">Portfolio Samples</h3>
                                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                         @foreach($service->portfolio_files as $file)
-                                            <div class="border rounded-lg overflow-hidden">
-                                                @if(str_ends_with($file, '.jpg') || str_ends_with($file, '.jpeg') || str_ends_with($file, '.png') || str_ends_with($file, '.gif'))
-                                                    <img src="{{ Storage::url($file) }}" alt="Portfolio sample" class="w-full h-32 object-cover">
+                                            <div class="relative group cursor-pointer border rounded-lg overflow-hidden">
+                                                @if(str_starts_with($file['type'], 'image/'))
+                                                    <img src="{{ Storage::url($file['thumbnail'] ?? $file['path']) }}" alt="{{ $file['original_name'] }}" class="w-full h-40 object-cover">
                                                 @else
-                                                    <div class="w-full h-32 bg-gray-100 flex items-center justify-center">
-                                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <div class="w-full h-40 bg-gray-100 flex items-center justify-center">
+                                                        <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
                                                         </svg>
                                                     </div>
                                                 @endif
+                                                @if(isset($file['description']))
+                                                    <div class="absolute bottom-0 left-0 right-0 bg-black bg-opacity-60 text-white text-xs p-2 opacity-0 group-hover:opacity-100 transition">
+                                                        {{ $file['description'] }}
+                                                    </div>
+                                                @endif
+                                                <a href="{{ Storage::url($file['path']) }}" target="_blank" class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition flex items-center justify-center">
+                                                    <svg class="w-8 h-8 text-white opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                </a>
                                             </div>
                                         @endforeach
                                     </div>

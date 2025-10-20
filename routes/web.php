@@ -113,6 +113,7 @@ Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(
     
     // Order management routes
     Route::get('/orders', [ClientOrderController::class, 'index'])->name('orders.index');
+    Route::get('/order/deliverables/{order}', [ClientOrderController::class, 'show'])->name('orders.deliverables');
     Route::get('/orders/{order}', [ClientOrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/approve', [ClientOrderController::class, 'approve'])->name('orders.approve');
     Route::post('/orders/{order}/revision', [ClientOrderController::class, 'requestRevision'])->name('orders.revision');

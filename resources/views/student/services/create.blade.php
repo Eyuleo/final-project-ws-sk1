@@ -32,8 +32,8 @@
                         <x-input-label for="category" :value="__('Category')" />
                         <select id="category" name="category" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
                             <option value="">Select a category</option>
-                            @foreach($categories as $value => $label)
-                                <option value="{{ $value }}" {{ old('category') == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category') == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
                         <x-input-error :messages="$errors->get('category')" class="mt-2" />

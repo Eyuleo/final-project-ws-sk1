@@ -123,21 +123,22 @@ class NotificationService
      */
     public function sendOrderAcceptedNotification(Order $order): void
     {
-        $client = $order->client;
+        $client = $order->clientProfile->user;
+        $student = $order->studentProfile->user;
 
         Mail::send('emails.orders.accepted', [
             'client' => $client,
             'order' => $order,
-            'student' => $order->student,
+            'student' => $student,
         ], function ($message) use ($client, $order) {
             $message->to($client->email)
-                ->subject("Order Accepted - Order #{$order->id}");
+                ->subject("Order Accepted - Order #{$order->order_number}");
         });
 
         $this->createInAppNotification($client, [
             'type' => 'order_accepted',
             'title' => 'Order Accepted',
-            'message' => "Your order has been accepted by {$order->student->name}",
+            'message' => "Your order has been accepted by {$student->name}",
             'action_url' => route('client.orders.show', $order),
             'order_id' => $order->id,
         ]);
@@ -209,7 +210,7 @@ class NotificationService
      */
     public function sendOrderApprovedNotification(Order $order): void
     {
-        $student = $order->student;
+        $student = $order->studentProfile->user;
 
         Mail::send('emails.orders.approved', [
             'student' => $student,
@@ -375,12 +376,12 @@ class NotificationService
      */
     public function sendReviewReceivedNotification(Review $review): void
     {
-        $student = $review->student;
+        $student = $review->reviewed;
 
         Mail::send('emails.reviews.received', [
             'student' => $student,
             'review' => $review,
-            'client' => $review->client,
+            'client' => $review->reviewer,
             'order' => $review->order,
         ], function ($message) use ($student, $review) {
             $message->to($student->email)
@@ -404,7 +405,7 @@ class NotificationService
      */
     public function sendWithdrawalProcessedNotification(Withdrawal $withdrawal): void
     {
-        $student = $withdrawal->student;
+        $student = $withdrawal->studentProfile->user;
 
         Mail::send('emails.withdrawals.processed', [
             'student' => $student,
@@ -432,7 +433,7 @@ class NotificationService
      */
     public function sendWithdrawalFailedNotification(Withdrawal $withdrawal, string $reason): void
     {
-        $student = $withdrawal->student;
+        $student = $withdrawal->studentProfile->user;
 
         Mail::send('emails.withdrawals.failed', [
             'student' => $student,

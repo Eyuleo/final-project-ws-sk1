@@ -30,6 +30,7 @@ class ServiceListingController extends Controller
         $profile = $user->studentProfile;
         
         $services = $profile->serviceListings()
+            ->with('category')
             ->withCount(['orders', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->latest()
@@ -50,18 +51,7 @@ class ServiceListingController extends Controller
      */
     public function create(): View
     {
-        $categories = [
-            'web_development' => 'Web Development',
-            'mobile_development' => 'Mobile Development',
-            'graphic_design' => 'Graphic Design',
-            'video_editing' => 'Video Editing',
-            'content_writing' => 'Content Writing',
-            'digital_marketing' => 'Digital Marketing',
-            'data_analysis' => 'Data Analysis',
-            'tutoring' => 'Tutoring',
-            'translation' => 'Translation',
-            'other' => 'Other',
-        ];
+        $categories = \App\Models\Category::active()->ordered()->get();
 
         return view('student.services.create', compact('categories'));
     }
@@ -103,6 +93,7 @@ class ServiceListingController extends Controller
             'description' => $validated['description'],
             'price' => $validated['price'],
             'delivery_days' => $validated['delivery_time'],
+            'revisions' => $validated['revisions'],
             'requirements' => $validated['requirements'] ?? null,
             'portfolio_files' => $portfolioSamples,
             'status' => 'draft',
@@ -135,18 +126,7 @@ class ServiceListingController extends Controller
      */
     public function edit(ServiceListing $service): View
     {
-        $categories = [
-            'web_development' => 'Web Development',
-            'mobile_development' => 'Mobile Development',
-            'graphic_design' => 'Graphic Design',
-            'video_editing' => 'Video Editing',
-            'content_writing' => 'Content Writing',
-            'digital_marketing' => 'Digital Marketing',
-            'data_analysis' => 'Data Analysis',
-            'tutoring' => 'Tutoring',
-            'translation' => 'Translation',
-            'other' => 'Other',
-        ];
+        $categories = \App\Models\Category::active()->ordered()->get();
 
         return view('student.services.edit', compact('service', 'categories'));
     }
@@ -159,7 +139,7 @@ class ServiceListingController extends Controller
         $validated = $request->validated();
 
         // Handle new portfolio samples upload
-        $existingSamples = $service->portfolio_samples ?? [];
+        $existingSamples = $service->portfolio_files ?? [];
         $newSamples = [];
 
         if ($request->hasFile('portfolio_samples')) {
@@ -192,6 +172,7 @@ class ServiceListingController extends Controller
             'description' => $validated['description'],
             'price' => $validated['price'],
             'delivery_days' => $validated['delivery_time'],
+            'revisions' => $validated['revisions'],
             'requirements' => $validated['requirements'] ?? null,
             'portfolio_files' => $portfolioSamples,
         ]);
@@ -212,8 +193,8 @@ class ServiceListingController extends Controller
         }
 
         // Delete portfolio samples
-        if ($service->portfolio_samples) {
-            foreach ($service->portfolio_samples as $sample) {
+        if ($service->portfolio_files) {
+            foreach ($service->portfolio_files as $sample) {
                 $this->fileUploadService->deleteFile($sample['path']);
                 if (isset($sample['thumbnail'])) {
                     $this->fileUploadService->deleteFile($sample['thumbnail']);
@@ -232,7 +213,11 @@ class ServiceListingController extends Controller
      */
     public function toggleStatus(ServiceListing $service): RedirectResponse
     {
-        $this->authorize('update', $service);
+        // Check authorization
+        $user = Auth::user();
+        if (!$user->studentProfile || $service->student_profile_id !== $user->studentProfile->id) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $newStatus = $service->status === 'active' ? 'paused' : 'active';
         $service->update(['status' => $newStatus]);
@@ -249,9 +234,13 @@ class ServiceListingController extends Controller
      */
     public function deleteSample(ServiceListing $service, int $index): RedirectResponse
     {
-        $this->authorize('update', $service);
+        // Check authorization
+        $user = Auth::user();
+        if (!$user->studentProfile || $service->student_profile_id !== $user->studentProfile->id) {
+            abort(403, 'Unauthorized action.');
+        }
 
-        $samples = $service->portfolio_samples ?? [];
+        $samples = $service->portfolio_files ?? [];
 
         if (isset($samples[$index])) {
             // Delete the file from storage
@@ -265,7 +254,7 @@ class ServiceListingController extends Controller
 
             // Update service
             $service->update([
-                'portfolio_samples' => array_values($samples), // Re-index array
+                'portfolio_files' => array_values($samples), // Re-index array
             ]);
 
             return back()->with('success', 'Portfolio sample deleted successfully!');

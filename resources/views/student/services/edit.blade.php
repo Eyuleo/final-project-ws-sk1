@@ -32,8 +32,8 @@
                         <x-input-label for="category" :value="__('Category')" />
                         <select id="category" name="category" class="block mt-1 w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm" required>
                             <option value="">Select a category</option>
-                            @foreach($categories as $value => $label)
-                                <option value="{{ $value }}" {{ old('category', $service->category) == $value ? 'selected' : '' }}>{{ $label }}</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category', $service->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
                             @endforeach
                         </select>
                         <x-input-error :messages="$errors->get('category')" class="mt-2" />
@@ -77,7 +77,7 @@
                         <!-- Delivery Time -->
                         <div>
                             <x-input-label for="delivery_time" :value="__('Delivery Time (Days)')" />
-                            <x-text-input id="delivery_time" class="block mt-1 w-full" type="number" name="delivery_time" :value="old('delivery_time', $service->delivery_time)" min="1" max="365" required />
+                            <x-text-input id="delivery_time" class="block mt-1 w-full" type="number" name="delivery_time" :value="old('delivery_time', $service->delivery_days)" min="1" max="365" required />
                             <x-input-error :messages="$errors->get('delivery_time')" class="mt-2" />
                         </div>
 
@@ -110,11 +110,11 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Portfolio Samples</h3>
 
                     <!-- Existing Samples -->
-                    @if($service->portfolio_samples && count($service->portfolio_samples) > 0)
+                    @if($service->portfolio_files && count($service->portfolio_files) > 0)
                         <div class="mb-6">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Current Samples</label>
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                @foreach($service->portfolio_samples as $index => $sample)
+                                @foreach($service->portfolio_files as $index => $sample)
                                     <div class="relative group">
                                         @if(str_starts_with($sample['type'], 'image/'))
                                             <img src="{{ Storage::url($sample['thumbnail'] ?? $sample['path']) }}" alt="{{ $sample['original_name'] }}" class="w-full h-32 object-cover rounded-lg">

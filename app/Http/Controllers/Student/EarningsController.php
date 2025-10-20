@@ -55,7 +55,7 @@ class EarningsController extends Controller
         $profile = $user->studentProfile;
 
         // Check if student has Stripe Connect account
-        $hasStripeAccount = !empty($profile->stripe_connect_account_id);
+        $hasStripeAccount = !empty($profile->stripe_connect_id);
 
         return view('student.earnings.withdraw', compact('profile', 'hasStripeAccount'));
     }

@@ -135,8 +135,8 @@ class WithdrawalService
     public function createOrGetStripeConnectAccount(StudentProfile $studentProfile): ?string
     {
         // If student already has a Stripe account ID, return it
-        if ($studentProfile->stripe_connect_account_id) {
-            return $studentProfile->stripe_connect_account_id;
+        if ($studentProfile->stripe_connect_id) {
+            return $studentProfile->stripe_connect_id;
         }
 
         // Check if Stripe is configured
@@ -163,7 +163,7 @@ class WithdrawalService
 
             // Save Stripe account ID to student profile
             $studentProfile->update([
-                'stripe_connect_account_id' => $account->id,
+                'stripe_connect_id' => $account->id,
             ]);
 
             Log::info('Stripe Connect account created', [

@@ -3,10 +3,21 @@
 <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
     <!-- Service Image -->
     <div class="relative h-48 bg-gray-200">
-        @if($service->portfolio_images && count($service->portfolio_images) > 0)
-            <img src="{{ Storage::url($service->portfolio_images[0]) }}" 
-                 alt="{{ $service->title }}" 
-                 class="w-full h-full object-cover">
+        @if($service->portfolio_files && count($service->portfolio_files) > 0)
+            @php
+                $firstFile = $service->portfolio_files[0];
+            @endphp
+            @if(str_starts_with($firstFile['type'], 'image/'))
+                <img src="{{ Storage::url($firstFile['thumbnail'] ?? $firstFile['path']) }}" 
+                     alt="{{ $service->title }}" 
+                     class="w-full h-full object-cover">
+            @else
+                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
+                    <svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            @endif
         @else
             <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200">
                 <svg class="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

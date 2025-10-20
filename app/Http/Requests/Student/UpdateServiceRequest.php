@@ -16,7 +16,8 @@ class UpdateServiceRequest extends FormRequest
         $service = $this->route('service');
         return $this->user() 
             && $this->user()->role === 'student' 
-            && $service->student_id === $this->user()->id;
+            && $this->user()->studentProfile 
+            && $service->student_profile_id === $this->user()->studentProfile->id;
     }
 
     /**
@@ -28,7 +29,7 @@ class UpdateServiceRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:web_development,mobile_development,graphic_design,video_editing,content_writing,digital_marketing,data_analysis,tutoring,translation,other'],
+            'category' => ['required', 'integer', 'exists:categories,id'],
             'description' => ['required', 'string', 'max:5000'],
             'price' => ['required', 'numeric', 'min:5', 'max:999999.99'],
             'delivery_time' => ['required', 'integer', 'min:1', 'max:365'],

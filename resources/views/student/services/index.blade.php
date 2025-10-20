@@ -88,9 +88,9 @@
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg hover:shadow-lg transition">
                         <!-- Service Image/Thumbnail -->
                         <div class="relative h-48 bg-gradient-to-br from-blue-500 to-purple-600">
-                            @if($service->portfolio_samples && count($service->portfolio_samples) > 0)
+                            @if($service->portfolio_files && count($service->portfolio_files) > 0)
                                 @php
-                                    $firstSample = $service->portfolio_samples[0];
+                                    $firstSample = $service->portfolio_files[0];
                                 @endphp
                                 @if(str_starts_with($firstSample['type'], 'image/'))
                                     <img src="{{ Storage::url($firstSample['thumbnail'] ?? $firstSample['path']) }}" alt="{{ $service->title }}" class="w-full h-full object-cover">
@@ -126,7 +126,7 @@
                         <div class="p-6">
                             <!-- Category -->
                             <p class="text-xs font-medium text-blue-600 uppercase tracking-wide mb-2">
-                                {{ str_replace('_', ' ', $service->category) }}
+                                {{ $service->category->name ?? 'Uncategorized' }}
                             </p>
 
                             <!-- Title -->
@@ -163,7 +163,7 @@
                             <div class="flex items-center justify-between pt-4 border-t border-gray-200">
                                 <div>
                                     <p class="text-2xl font-bold text-gray-900">${{ number_format($service->price, 2) }}</p>
-                                    <p class="text-xs text-gray-500">{{ $service->delivery_time }} day delivery</p>
+                                    <p class="text-xs text-gray-500">{{ $service->delivery_days }} day delivery</p>
                                 </div>
                                 <div class="flex space-x-2">
                                     <a href="{{ route('student.services.edit', $service) }}" class="inline-flex items-center p-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">

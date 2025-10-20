@@ -25,7 +25,7 @@ class CreateServiceRequest extends FormRequest
     {
         return [
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'in:web_development,mobile_development,graphic_design,video_editing,content_writing,digital_marketing,data_analysis,tutoring,translation,other'],
+            'category' => ['required', 'integer', 'exists:categories,id'],
             'description' => ['required', 'string', 'max:5000'],
             'price' => ['required', 'numeric', 'min:5', 'max:999999.99'],
             'delivery_time' => ['required', 'integer', 'min:1', 'max:365'],

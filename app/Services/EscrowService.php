@@ -65,7 +65,13 @@ class EscrowService
             $escrowTransaction = $order->transactions()
                 ->where('type', 'escrow_hold')
                 ->where('status', 'pending')
-                ->firstOrFail();
+                ->first();
+
+            // If no escrow_hold transaction exists, create one retroactively
+            // This can happen if the webhook didn't process properly
+            if (!$escrowTransaction) {
+                $escrowTransaction = $this->holdFunds($order);
+            }
 
             $escrowTransaction->update([
                 'status' => 'completed',
@@ -131,7 +137,26 @@ class EscrowService
             $escrowTransaction = $order->transactions()
                 ->where('type', 'escrow_hold')
                 ->where('status', 'pending')
-                ->firstOrFail();
+                ->first();
+
+            // If no escrow_hold transaction exists, skip escrow cancellation
+            // and proceed directly to Stripe refund
+            if (!$escrowTransaction) {
+                // Process Stripe refund
+                $paymentService = app(PaymentService::class);
+                $paymentService->processRefund($order, null, $reason);
+
+                // Update order escrow status
+                $order->update([
+                    'escrow_status' => 'refunded',
+                ]);
+
+                // Return the refund transaction created by PaymentService
+                return $order->transactions()
+                    ->where('type', 'refund')
+                    ->latest()
+                    ->firstOrFail();
+            }
 
             $escrowTransaction->update([
                 'status' => 'cancelled',
@@ -177,7 +202,12 @@ class EscrowService
             $escrowTransaction = $order->transactions()
                 ->where('type', 'escrow_hold')
                 ->where('status', 'pending')
-                ->firstOrFail();
+                ->first();
+
+            // If no escrow_hold transaction exists, create one retroactively
+            if (!$escrowTransaction) {
+                $escrowTransaction = $this->holdFunds($order);
+            }
 
             $escrowTransaction->update([
                 'status' => 'completed',

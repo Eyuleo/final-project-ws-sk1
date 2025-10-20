@@ -106,7 +106,7 @@
                             Withdrawal History
                         </a>
 
-                        @if(empty($profile->stripe_connect_account_id))
+                        @if(empty($profile->stripe_connect_id))
                             <a href="{{ route('student.earnings.connect-stripe') }}" 
                                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +117,7 @@
                         @endif
                     </div>
 
-                    @if(empty($profile->stripe_connect_account_id))
+                    @if(empty($profile->stripe_connect_id))
                         <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                             <p class="text-sm text-blue-800">
                                 <strong>Note:</strong> Connect your Stripe account to enable automatic withdrawals to your bank account.

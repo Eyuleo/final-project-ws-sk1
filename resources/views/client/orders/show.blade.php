@@ -272,10 +272,10 @@
                 <form method="POST" action="{{ route('client.orders.revision', $order) }}">
                     @csrf
                     <div class="mb-4">
-                        <label for="revision_notes" class="block text-sm font-medium text-gray-700 mb-2">
+                        <label for="revision_reason" class="block text-sm font-medium text-gray-700 mb-2">
                             What needs to be revised?
                         </label>
-                        <textarea id="revision_notes" name="revision_notes" rows="4" required
+                        <textarea id="revision_reason" name="revision_reason" rows="4" required
                             class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                             placeholder="Please provide specific feedback..."></textarea>
                     </div>

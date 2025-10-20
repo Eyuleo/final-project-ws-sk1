@@ -110,7 +110,7 @@ class PaymentService
         // Create refund transaction record
         Transaction::create([
             'order_id' => $order->id,
-            'user_id' => $order->client_id,
+            'user_id' => $order->clientProfile->user_id,
             'type' => 'refund',
             'amount' => $amount ?? $order->total_amount,
             'status' => 'completed',

@@ -22,7 +22,7 @@ class ServiceListingPolicy
      */
     public function view(User $user, ServiceListing $serviceListing): bool
     {
-        return $user->id === $serviceListing->student_id;
+        return $user->studentProfile && $user->studentProfile->id === $serviceListing->student_profile_id;
     }
 
     /**
@@ -38,7 +38,7 @@ class ServiceListingPolicy
      */
     public function update(User $user, ServiceListing $serviceListing): bool
     {
-        return $user->id === $serviceListing->student_id;
+        return $user->studentProfile && $user->studentProfile->id === $serviceListing->student_profile_id;
     }
 
     /**
@@ -46,7 +46,7 @@ class ServiceListingPolicy
      */
     public function delete(User $user, ServiceListing $serviceListing): bool
     {
-        return $user->id === $serviceListing->student_id;
+        return $user->studentProfile && $user->studentProfile->id === $serviceListing->student_profile_id;
     }
 
     /**
@@ -54,7 +54,7 @@ class ServiceListingPolicy
      */
     public function restore(User $user, ServiceListing $serviceListing): bool
     {
-        return $user->id === $serviceListing->student_id;
+        return $user->studentProfile && $user->studentProfile->id === $serviceListing->student_profile_id;
     }
 
     /**
@@ -62,6 +62,6 @@ class ServiceListingPolicy
      */
     public function forceDelete(User $user, ServiceListing $serviceListing): bool
     {
-        return $user->id === $serviceListing->student_id;
+        return $user->studentProfile && $user->studentProfile->id === $serviceListing->student_profile_id;
     }
 }
