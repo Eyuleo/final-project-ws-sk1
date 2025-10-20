@@ -158,6 +158,41 @@ class FileUploadService
     }
 
     /**
+     * Generic file upload method
+     *
+     * @param UploadedFile $file The uploaded file
+     * @param string $directory Directory to store the file in
+     * @param bool $createThumbnail Whether to create a thumbnail for images
+     * @return array File information [path, type, size, original_name]
+     */
+    public function uploadFile(UploadedFile $file, string $directory, bool $createThumbnail = false): array
+    {
+        $this->validatePortfolioFile($file);
+
+        $filename = $this->generateFilename($file, 'file');
+        $path = "{$directory}/{$filename}";
+
+        // Store the file
+        Storage::disk('public')->putFileAs(
+            $directory,
+            $file,
+            $filename
+        );
+
+        // If it's an image and thumbnail is requested, create it
+        if ($createThumbnail && $this->isImage($file)) {
+            $this->createThumbnail($file, $directory, $filename);
+        }
+
+        return [
+            'path' => $path,
+            'type' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'original_name' => $file->getClientOriginalName(),
+        ];
+    }
+
+    /**
      * Upload order attachment (requirements files)
      *
      * @param UploadedFile $file The uploaded file

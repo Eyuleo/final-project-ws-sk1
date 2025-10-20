@@ -453,6 +453,23 @@ class NotificationService
     }
 
     /**
+     * Send withdrawal notification based on status
+     *
+     * @param Withdrawal $withdrawal The withdrawal
+     * @param string $status The withdrawal status
+     * @return void
+     */
+    public function sendWithdrawalNotification(Withdrawal $withdrawal, string $status): void
+    {
+        if ($status === 'completed') {
+            $this->sendWithdrawalProcessedNotification($withdrawal);
+        } elseif ($status === 'failed') {
+            $reason = $withdrawal->notes ?? 'Unknown error';
+            $this->sendWithdrawalFailedNotification($withdrawal, $reason);
+        }
+    }
+
+    /**
      * Create an in-app notification
      *
      * @param User $user The user to notify

@@ -46,7 +46,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-500">Total Earnings</p>
-                            <p class="text-2xl font-semibold text-gray-900">${{ number_format(Auth::user()->available_balance + Auth::user()->withdrawn_balance, 2) }}</p>
+                            <p class="text-2xl font-semibold text-gray-900">${{ number_format(Auth::user()->studentProfile->available_balance + Auth::user()->studentProfile->withdrawn_balance, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                         </div>
                         <div class="ml-4">
                             <p class="text-sm font-medium text-gray-500">Available Balance</p>
-                            <p class="text-2xl font-semibold text-gray-900">${{ number_format(Auth::user()->available_balance, 2) }}</p>
+                            <p class="text-2xl font-semibold text-gray-900">${{ number_format(Auth::user()->studentProfile->available_balance, 2) }}</p>
                         </div>
                     </div>
                 </div>
@@ -148,7 +148,11 @@
                     </div>
                     
                     @php
-                        $recentOrders = Auth::user()->studentProfile->orders()->latest()->take(5)->get();
+                        $recentOrders = Auth::user()->studentProfile->orders()
+                            ->with(['serviceListing', 'clientProfile.user'])
+                            ->latest()
+                            ->take(5)
+                            ->get();
                     @endphp
 
                     @if($recentOrders->count() > 0)
@@ -157,7 +161,7 @@
                                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                     <div class="flex-1">
                                         <p class="text-sm font-medium text-gray-900">{{ $order->serviceListing->title }}</p>
-                                        <p class="text-xs text-gray-500">{{ $order->client->name }} • {{ $order->created_at->diffForHumans() }}</p>
+                                        <p class="text-xs text-gray-500">{{ $order->clientProfile->user->name }} • {{ $order->created_at->diffForHumans() }}</p>
                                     </div>
                                     <div class="flex items-center space-x-3">
                                         <span class="text-sm font-semibold text-gray-900">${{ number_format($order->total_amount, 2) }}</span>

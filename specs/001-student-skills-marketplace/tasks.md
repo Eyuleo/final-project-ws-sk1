@@ -276,16 +276,16 @@
 
 ### Implementation for User Story 7
 
-- [ ] T134 [P] [US7] Create ReviewRequest form request in `app/Http/Requests/Client/ReviewRequest.php`
-- [ ] T135 [US7] Create ReviewService in `app/Services/ReviewService.php` with review management and rating aggregation methods
-- [ ] T136 [US7] Create ReviewController in `app/Http/Controllers/Client/ReviewController.php` with create and store methods
-- [ ] T137 [P] [US7] Create review create view in `resources/views/client/reviews/create.blade.php`
-- [ ] T138 [US7] Add review routes to `routes/web.php` with client middleware
-- [ ] T139 [US7] Create ReviewPolicy in `app/Policies/ReviewPolicy.php` for authorization
-- [ ] T140 [US7] Implement rating aggregation updates in ReviewService (student profile and service listing)
-- [ ] T141 [US7] Update student profile views to display reviews and average rating
-- [ ] T142 [US7] Update service listing views to display reviews and average rating
-- [ ] T143 [US7] Create review display component in `resources/views/components/review-card.blade.php`
+- [x] T134 [P] [US7] Create ReviewRequest form request in `app/Http/Requests/Client/ReviewRequest.php`
+- [x] T135 [US7] Create ReviewService in `app/Services/ReviewService.php` with review management and rating aggregation methods
+- [x] T136 [US7] Create ReviewController in `app/Http/Controllers/Client/ReviewController.php` with create and store methods
+- [x] T137 [P] [US7] Create review create view in `resources/views/client/reviews/create.blade.php`
+- [x] T138 [US7] Add review routes to `routes/web.php` with client middleware
+- [x] T139 [US7] Create ReviewPolicy in `app/Policies/ReviewPolicy.php` for authorization
+- [x] T140 [US7] Implement rating aggregation updates in ReviewService (student profile and service listing)
+- [x] T141 [US7] Update student profile views to display reviews and average rating
+- [x] T142 [US7] Update service listing views to display reviews and average rating
+- [x] T143 [US7] Create review display component in `resources/views/components/review-card.blade.php`
 
 **Checkpoint**: Clients can leave reviews after order completion, reviews displayed on profiles and listings with aggregated ratings
 
@@ -299,19 +299,19 @@
 
 ### Implementation for User Story 8
 
-- [ ] T144 [P] [US8] Create WithdrawalRequest form request in `app/Http/Requests/Student/WithdrawalRequest.php`
-- [ ] T145 [US8] Create WithdrawalService in `app/Services/WithdrawalService.php` with Stripe Connect integration
-- [ ] T146 [US8] Create EarningsController in `app/Http/Controllers/Student/EarningsController.php` with index, createWithdrawal, storeWithdrawal, withdrawals methods
-- [ ] T147 [P] [US8] Create earnings dashboard view in `resources/views/student/earnings/index.blade.php`
-- [ ] T148 [P] [US8] Create withdrawal request view in `resources/views/student/earnings/withdraw.blade.php`
-- [ ] T149 [US8] Add earnings and withdrawal routes to `routes/web.php` with student middleware
-- [ ] T150 [US8] Implement Stripe Connect account creation in WithdrawalService
-- [ ] T151 [US8] Implement Stripe Connect onboarding link generation in WithdrawalService
-- [ ] T152 [US8] Implement withdrawal processing job in `app/Jobs/ProcessWithdrawal.php`
-- [ ] T153 [US8] Implement balance tracking and transaction history display
-- [ ] T154 [US8] Create withdrawal notification in NotificationService
-- [ ] T155 [US8] Implement auto-release escrow job in `app/Jobs/ReleaseEscrowFunds.php` for 7-day timeout
-- [ ] T156 [US8] Schedule auto-release job in `app/Console/Kernel.php`
+- [x] T144 [P] [US8] Create WithdrawalRequest form request in `app/Http/Requests/Student/WithdrawalRequest.php`
+- [x] T145 [US8] Create WithdrawalService in `app/Services/WithdrawalService.php` with Stripe Connect integration
+- [x] T146 [US8] Create EarningsController in `app/Http/Controllers/Student/EarningsController.php` with index, createWithdrawal, storeWithdrawal, withdrawals methods
+- [x] T147 [P] [US8] Create earnings dashboard view in `resources/views/student/earnings/index.blade.php`
+- [x] T148 [P] [US8] Create withdrawal request view in `resources/views/student/earnings/withdraw.blade.php`
+- [x] T149 [US8] Add earnings and withdrawal routes to `routes/web.php` with student middleware
+- [x] T150 [US8] Implement Stripe Connect account creation in WithdrawalService
+- [x] T151 [US8] Implement Stripe Connect onboarding link generation in WithdrawalService
+- [x] T152 [US8] Implement withdrawal processing job in `app/Jobs/ProcessWithdrawal.php`
+- [x] T153 [US8] Implement balance tracking and transaction history display
+- [x] T154 [US8] Create withdrawal notification in NotificationService
+- [x] T155 [US8] Implement auto-release escrow job in `app/Jobs/ReleaseEscrowFunds.php` for 7-day timeout
+- [x] T156 [US8] Schedule auto-release job in `bootstrap/app.php`
 
 **Checkpoint**: Students can view earnings, request withdrawals via Stripe Connect, funds transferred to bank accounts
 

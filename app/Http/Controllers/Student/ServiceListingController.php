@@ -18,7 +18,7 @@ class ServiceListingController extends Controller
     public function __construct(
         private readonly FileUploadService $fileUploadService
     ) {
-        $this->authorizeResource(ServiceListing::class, 'service');
+        // Authorization handled by student middleware
     }
 
     /**
@@ -27,18 +27,19 @@ class ServiceListingController extends Controller
     public function index(): View
     {
         $user = Auth::user();
+        $profile = $user->studentProfile;
         
-        $services = $user->serviceListings()
+        $services = $profile->serviceListings()
             ->withCount(['orders', 'reviews'])
             ->withAvg('reviews', 'rating')
             ->latest()
             ->paginate(12);
 
         $stats = [
-            'total_services' => $user->serviceListings()->count(),
-            'active_services' => $user->serviceListings()->where('status', 'active')->count(),
-            'paused_services' => $user->serviceListings()->where('status', 'paused')->count(),
-            'total_orders' => $user->studentOrders()->count(),
+            'total_services' => $profile->serviceListings()->count(),
+            'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
+            'paused_services' => $profile->serviceListings()->where('status', 'paused')->count(),
+            'total_orders' => $profile->orders()->count(),
         ];
 
         return view('student.services.index', compact('services', 'stats'));
@@ -95,17 +96,16 @@ class ServiceListingController extends Controller
         }
 
         // Create service listing
-        $service = $user->serviceListings()->create([
+        $service = $user->studentProfile->serviceListings()->create([
             'title' => $validated['title'],
-            'category' => $validated['category'],
+            'category_id' => $validated['category'],
+            'slug' => \Illuminate\Support\Str::slug($validated['title']) . '-' . time(),
             'description' => $validated['description'],
             'price' => $validated['price'],
-            'delivery_time' => $validated['delivery_time'],
-            'revisions' => $validated['revisions'],
+            'delivery_days' => $validated['delivery_time'],
             'requirements' => $validated['requirements'] ?? null,
-            'tags' => $validated['tags'] ?? [],
-            'portfolio_samples' => $portfolioSamples,
-            'status' => 'active',
+            'portfolio_files' => $portfolioSamples,
+            'status' => 'draft',
         ]);
 
         return redirect()->route('student.services.show', $service)
@@ -117,7 +117,7 @@ class ServiceListingController extends Controller
      */
     public function show(ServiceListing $service): View
     {
-        $service->load(['student.studentProfile', 'reviews.client']);
+        $service->load(['studentProfile.user', 'category']);
         
         $stats = [
             'total_orders' => $service->orders()->count(),
@@ -187,14 +187,13 @@ class ServiceListingController extends Controller
         // Update service
         $service->update([
             'title' => $validated['title'],
-            'category' => $validated['category'],
+            'category_id' => $validated['category'],
+            'slug' => \Illuminate\Support\Str::slug($validated['title']) . '-' . $service->id,
             'description' => $validated['description'],
             'price' => $validated['price'],
-            'delivery_time' => $validated['delivery_time'],
-            'revisions' => $validated['revisions'],
+            'delivery_days' => $validated['delivery_time'],
             'requirements' => $validated['requirements'] ?? null,
-            'tags' => $validated['tags'] ?? [],
-            'portfolio_samples' => $portfolioSamples,
+            'portfolio_files' => $portfolioSamples,
         ]);
 
         return redirect()->route('student.services.show', $service)

@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Student;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\UpdateProfileRequest;
 use App\Services\FileUploadService;
+use App\Services\ReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,8 @@ use Illuminate\View\View;
 class ProfileController extends Controller
 {
     public function __construct(
-        private FileUploadService $fileUploadService
+        private FileUploadService $fileUploadService,
+        private ReviewService $reviewService
     ) {}
 
     /**
@@ -39,7 +41,12 @@ class ProfileController extends Controller
             'total_earnings' => $profile->available_balance + $profile->withdrawn_balance,
         ];
 
-        return view('student.profile.show', compact('user', 'profile', 'stats'));
+        // Get reviews data
+        $reviews = $this->reviewService->getStudentReviews($profile, 10);
+        $ratingBreakdown = $this->reviewService->getRatingBreakdown($profile);
+        $commonTags = $this->reviewService->getCommonTags($profile, 5);
+
+        return view('student.profile.show', compact('user', 'profile', 'stats', 'reviews', 'ratingBreakdown', 'commonTags'));
     }
 
     /**
@@ -168,12 +175,10 @@ class ProfileController extends Controller
             ->latest()
             ->get();
 
-        // Get reviews
-        $reviews = $user->reviewsReceived()
-            ->with('reviewer')
-            ->latest()
-            ->take(10)
-            ->get();
+        // Get reviews data using ReviewService
+        $reviews = $this->reviewService->getStudentReviews($profile, 10);
+        $ratingBreakdown = $this->reviewService->getRatingBreakdown($profile);
+        $commonTags = $this->reviewService->getCommonTags($profile, 5);
 
         // Get statistics
         $stats = [
@@ -182,6 +187,6 @@ class ProfileController extends Controller
             'active_services' => $profile->serviceListings()->where('status', 'active')->count(),
         ];
 
-        return view('student.profile.public', compact('user', 'profile', 'services', 'reviews', 'stats'));
+        return view('student.profile.public', compact('user', 'profile', 'services', 'reviews', 'ratingBreakdown', 'commonTags', 'stats'));
     }
 }

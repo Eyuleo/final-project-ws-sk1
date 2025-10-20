@@ -161,18 +161,104 @@
                 @endif
 
                 <!-- My Services -->
-                @if($user->serviceListings->count() > 0)
+                @if($profile->serviceListings()->where('status', 'active')->count() > 0)
                     <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                         <div class="p-6">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="text-lg font-semibold text-gray-900">My Services</h3>
                                 <a href="{{ route('student.services.index') }}" class="text-sm text-blue-600 hover:text-blue-800">View All →</a>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                @foreach($user->serviceListings as $service)
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                @foreach($profile->serviceListings()->where('status', 'active')->latest()->take(6)->get() as $service)
                                     <x-service-card :service="$service" />
                                 @endforeach
                             </div>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Reviews -->
+                @if(isset($reviews) && $reviews->count() > 0)
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900">Reviews ({{ $profile->total_reviews ?? 0 }})</h3>
+                                <div class="flex items-center">
+                                    <x-rating-stars :rating="$profile->average_rating ?? 0" size="sm" />
+                                    <span class="ml-2 text-sm font-medium text-gray-700">{{ number_format($profile->average_rating ?? 0, 1) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Rating Breakdown -->
+                            @if(isset($ratingBreakdown))
+                                <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-3">Rating Breakdown</h4>
+                                    <div class="space-y-2">
+                                        @foreach($ratingBreakdown as $rating => $count)
+                                            <div class="flex items-center">
+                                                <span class="text-sm text-gray-600 w-12">{{ $rating }} star</span>
+                                                <div class="flex-1 mx-3">
+                                                    <div class="bg-gray-200 rounded-full h-2">
+                                                        @php
+                                                            $total = array_sum($ratingBreakdown);
+                                                            $percentage = $total > 0 ? ($count / $total) * 100 : 0;
+                                                        @endphp
+                                                        <div class="bg-yellow-400 h-2 rounded-full" style="width: {{ $percentage }}%"></div>
+                                                    </div>
+                                                </div>
+                                                <span class="text-sm text-gray-500 w-8">{{ $count }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Common Tags -->
+                            @if(isset($commonTags) && count($commonTags) > 0)
+                                <div class="mb-6">
+                                    <h4 class="text-sm font-semibold text-gray-700 mb-2">Most Common Tags</h4>
+                                    <div class="flex flex-wrap gap-2">
+                                        @foreach($commonTags as $tag => $count)
+                                            @php
+                                                $tagLabels = [
+                                                    'professional' => 'Professional',
+                                                    'responsive' => 'Responsive',
+                                                    'quality' => 'High Quality',
+                                                    'communication' => 'Great Communication',
+                                                    'timely' => 'On Time',
+                                                    'creative' => 'Creative',
+                                                    'exceeded_expectations' => 'Exceeded Expectations'
+                                                ];
+                                                $label = $tagLabels[$tag] ?? ucfirst(str_replace('_', ' ', $tag));
+                                            @endphp
+                                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                                {{ $label }} ({{ $count }})
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+
+                            <!-- Review List -->
+                            <div class="space-y-4">
+                                @foreach($reviews as $review)
+                                    <x-review-card :review="$review" />
+                                @endforeach
+                            </div>
+
+                            <!-- Pagination -->
+                            @if($reviews->hasPages())
+                                <div class="mt-6">
+                                    {{ $reviews->links() }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @elseif(isset($reviews))
+                    <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Reviews</h3>
+                            <p class="text-gray-500 text-center py-8">No reviews yet. Complete orders to start receiving reviews!</p>
                         </div>
                     </div>
                 @endif

@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
 use App\Models\ServiceListing;
+use App\Services\ReviewService;
 use App\Services\SearchService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -13,7 +14,8 @@ use Illuminate\View\View;
 class ServiceDiscoveryController extends Controller
 {
     public function __construct(
-        private readonly SearchService $searchService
+        private readonly SearchService $searchService,
+        private readonly ReviewService $reviewService
     ) {}
 
     /**
@@ -58,11 +60,15 @@ class ServiceDiscoveryController extends Controller
 
         $relatedServices = $this->searchService->getRelatedServices($service, 4);
 
+        // Get reviews for this service
+        $reviews = $this->reviewService->getServiceReviews($service, 10);
+
         $stats = [
             'total_orders' => $service->orders_count,
             'average_rating' => $service->average_rating,
+            'total_reviews' => $reviews->total(),
         ];
 
-        return view('client.services.show', compact('service', 'relatedServices', 'stats'));
+        return view('client.services.show', compact('service', 'relatedServices', 'reviews', 'stats'));
     }
 }

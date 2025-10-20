@@ -163,6 +163,46 @@
                 </div>
             </div>
 
+            <!-- Reviews Section -->
+            @if(isset($reviews) && $reviews->count() > 0)
+                <div class="mt-12">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-2xl font-bold text-gray-900">Reviews ({{ $stats['total_reviews'] ?? 0 }})</h3>
+                                <div class="flex items-center">
+                                    <x-rating-stars :rating="$service->average_rating" size="md" />
+                                    <span class="ml-2 text-lg font-medium text-gray-700">{{ number_format($service->average_rating, 1) }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Review List -->
+                            <div class="space-y-4">
+                                @foreach($reviews as $review)
+                                    <x-review-card :review="$review" />
+                                @endforeach
+                            </div>
+
+                            <!-- Pagination -->
+                            @if($reviews->hasPages())
+                                <div class="mt-6">
+                                    {{ $reviews->links() }}
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @elseif(isset($reviews))
+                <div class="mt-12">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-4">Reviews</h3>
+                            <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to order and review this service!</p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- Related Services -->
             @if($relatedServices->isNotEmpty())
                 <div class="mt-12">

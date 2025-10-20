@@ -75,7 +75,7 @@ class OrderController extends Controller
      */
     public function accept(Order $order)
     {
-        $this->authorize('update', $order);
+        $this->authorize('accept', $order);
 
         try {
             $this->orderService->acceptOrder($order);
@@ -93,7 +93,7 @@ class OrderController extends Controller
      */
     public function decline(DeclineOrderRequest $request, Order $order)
     {
-        $this->authorize('update', $order);
+        $this->authorize('decline', $order);
 
         try {
             $this->orderService->declineOrder($order, $request->decline_reason);
@@ -111,7 +111,7 @@ class OrderController extends Controller
      */
     public function updateStatus(Order $order)
     {
-        $this->authorize('update', $order);
+        $this->authorize('uploadDeliverables', $order);
 
         try {
             $this->orderService->startWork($order);
@@ -129,7 +129,7 @@ class OrderController extends Controller
      */
     public function uploadDeliverables(UploadDeliverablesRequest $request, Order $order)
     {
-        $this->authorize('update', $order);
+        $this->authorize('uploadDeliverables', $order);
 
         try {
             // Upload deliverable files

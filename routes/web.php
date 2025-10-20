@@ -3,10 +3,12 @@
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+use App\Http\Controllers\Client\ReviewController;
 use App\Http\Controllers\Client\ServiceDiscoveryController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StripeWebhookController;
+use App\Http\Controllers\Student\EarningsController;
 use App\Http\Controllers\Student\OrderController as StudentOrderController;
 use App\Http\Controllers\Student\ProfileController as StudentProfileController;
 use App\Http\Controllers\Student\ServiceListingController;
@@ -83,6 +85,13 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
     Route::post('/orders/{order}/decline', [StudentOrderController::class, 'decline'])->name('orders.decline');
     Route::post('/orders/{order}/start', [StudentOrderController::class, 'updateStatus'])->name('orders.start');
     Route::post('/orders/{order}/upload', [StudentOrderController::class, 'uploadDeliverables'])->name('orders.upload');
+    
+    // Earnings and withdrawal routes
+    Route::get('/earnings', [EarningsController::class, 'index'])->name('earnings.index');
+    Route::get('/earnings/withdraw', [EarningsController::class, 'createWithdrawal'])->name('earnings.withdraw');
+    Route::post('/earnings/withdraw', [EarningsController::class, 'storeWithdrawal'])->name('earnings.withdraw.store');
+    Route::get('/earnings/connect-stripe', [EarningsController::class, 'connectStripe'])->name('earnings.connect-stripe');
+    Route::get('/withdrawals', [EarningsController::class, 'withdrawals'])->name('earnings.withdrawals');
 });
 
 // Client routes
@@ -108,6 +117,10 @@ Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(
     Route::post('/orders/{order}/approve', [ClientOrderController::class, 'approve'])->name('orders.approve');
     Route::post('/orders/{order}/revision', [ClientOrderController::class, 'requestRevision'])->name('orders.revision');
     Route::post('/orders/{order}/dispute', [ClientOrderController::class, 'dispute'])->name('orders.dispute');
+    
+    // Review routes
+    Route::get('/reviews/create/{order}', [ReviewController::class, 'create'])->name('reviews.create');
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 });
 
 // Message routes (accessible to both students and clients)
