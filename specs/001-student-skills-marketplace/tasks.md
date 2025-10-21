@@ -321,20 +321,20 @@
 
 **Purpose**: Enable admin users to moderate platform, resolve disputes, manage users
 
-- [ ] T157 [P] Create DisputeOrderRequest form request in `app/Http/Requests/Client/DisputeOrderRequest.php`
-- [ ] T158 [P] Create ResolveDisputeRequest form request in `app/Http/Requests/Admin/ResolveDisputeRequest.php`
-- [ ] T159 Create Admin DashboardController in `app/Http/Controllers/Admin/DashboardController.php`
-- [ ] T160 [P] Create Admin DisputeController in `app/Http/Controllers/Admin/DisputeController.php` with index, show, resolve methods
-- [ ] T161 [P] Create Admin ModerationController in `app/Http/Controllers/Admin/ModerationController.php`
-- [ ] T162 [P] Create Admin UserController in `app/Http/Controllers/Admin/UserController.php`
-- [ ] T163 [P] Create admin dashboard view in `resources/views/admin/dashboard.blade.php`
-- [ ] T164 [P] Create disputes index view in `resources/views/admin/disputes/index.blade.php`
-- [ ] T165 [P] Create dispute show view in `resources/views/admin/disputes/show.blade.php`
-- [ ] T166 [P] Create moderation views in `resources/views/admin/moderation/` directory
-- [ ] T167 Add admin routes to `routes/web.php` with admin middleware
-- [ ] T168 Implement dispute opening in Client OrderController
-- [ ] T169 Implement dispute resolution (release, refund, split) in OrderService and EscrowService
-- [ ] T170 Create dispute notification in NotificationService
+- [x] T157 [P] Create DisputeOrderRequest form request in `app/Http/Requests/Client/DisputeOrderRequest.php`
+- [x] T158 [P] Create ResolveDisputeRequest form request in `app/Http/Requests/Admin/ResolveDisputeRequest.php`
+- [x] T159 Create Admin DashboardController in `app/Http/Controllers/Admin/DashboardController.php`
+- [x] T160 [P] Create Admin DisputeController in `app/Http/Controllers/Admin/DisputeController.php` with index, show, resolve methods
+- [x] T161 [P] Create Admin ModerationController in `app/Http/Controllers/Admin/ModerationController.php`
+- [x] T162 [P] Create Admin UserController in `app/Http/Controllers/Admin/UserController.php`
+- [x] T163 [P] Create admin dashboard view in `resources/views/admin/dashboard.blade.php`
+- [x] T164 [P] Create disputes index view in `resources/views/admin/disputes/index.blade.php`
+- [x] T165 [P] Create dispute show view in `resources/views/admin/disputes/show.blade.php`
+- [x] T166 [P] Create moderation views in `resources/views/admin/moderation/` directory
+- [x] T167 Add admin routes to `routes/web.php` with admin middleware
+- [x] T168 Implement dispute opening in Client OrderController
+- [x] T169 Implement dispute resolution (release, refund, split) in OrderService and EscrowService
+- [x] T170 Create dispute notification in NotificationService
 
 ---
 

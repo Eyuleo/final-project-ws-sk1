@@ -471,6 +471,40 @@ class NotificationService
     }
 
     /**
+     * Send dispute resolved notification
+     *
+     * @param Order $order The resolved order
+     * @return void
+     */
+    public function sendDisputeResolvedNotification(Order $order): void
+    {
+        $student = $order->studentProfile->user;
+        $client = $order->clientProfile->user;
+
+        // Notify student
+        Mail::send('emails.orders.dispute-resolved-student', [
+            'student' => $student,
+            'client' => $client,
+            'order' => $order,
+            'resolution' => $order->dispute_resolution,
+        ], function ($message) use ($student, $order) {
+            $message->to($student->email)
+                ->subject("Dispute Resolved - Order #{$order->order_number}");
+        });
+
+        // Notify client
+        Mail::send('emails.orders.dispute-resolved-client', [
+            'student' => $student,
+            'client' => $client,
+            'order' => $order,
+            'resolution' => $order->dispute_resolution,
+        ], function ($message) use ($client, $order) {
+            $message->to($client->email)
+                ->subject("Dispute Resolved - Order #{$order->order_number}");
+        });
+    }
+
+    /**
      * Create an in-app notification
      *
      * @param User $user The user to notify

@@ -58,10 +58,35 @@ Route::get('/client/dashboard', function () {
     return view('client.dashboard');
 })->middleware(['auth', 'client'])->name('client.dashboard');
 
-// Admin dashboard route
-Route::get('/admin/dashboard', function () {
-    return view('admin.dashboard');
-})->middleware(['auth', 'admin'])->name('admin.dashboard');
+// Admin routes
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
+    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    
+    // Order management
+    Route::get('/orders', [\App\Http\Controllers\Admin\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\Admin\OrderController::class, 'show'])->name('orders.show');
+    
+    // Dispute management
+    Route::get('/disputes', [\App\Http\Controllers\Admin\DisputeController::class, 'index'])->name('disputes.index');
+    Route::get('/disputes/{order}', [\App\Http\Controllers\Admin\DisputeController::class, 'show'])->name('disputes.show');
+    Route::post('/disputes/{order}/resolve', [\App\Http\Controllers\Admin\DisputeController::class, 'resolve'])->name('disputes.resolve');
+    
+    // User management
+    Route::get('/users', [\App\Http\Controllers\Admin\UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'show'])->name('users.show');
+    Route::post('/users/{user}/toggle-status', [\App\Http\Controllers\Admin\UserController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::delete('/users/{user}', [\App\Http\Controllers\Admin\UserController::class, 'destroy'])->name('users.destroy');
+    
+    // Content moderation
+    Route::get('/moderation', [\App\Http\Controllers\Admin\ModerationController::class, 'index'])->name('moderation.index');
+    Route::post('/moderation/services/{service}/approve', [\App\Http\Controllers\Admin\ModerationController::class, 'approveService'])->name('moderation.services.approve');
+    Route::post('/moderation/services/{service}/reject', [\App\Http\Controllers\Admin\ModerationController::class, 'rejectService'])->name('moderation.services.reject');
+    Route::post('/moderation/reviews/{review}/hide', [\App\Http\Controllers\Admin\ModerationController::class, 'hideReview'])->name('moderation.reviews.hide');
+    Route::post('/moderation/reviews/{review}/show', [\App\Http\Controllers\Admin\ModerationController::class, 'showReview'])->name('moderation.reviews.show');
+    Route::post('/moderation/users/{user}/suspend', [\App\Http\Controllers\Admin\ModerationController::class, 'suspendUser'])->name('moderation.users.suspend');
+    Route::post('/moderation/users/{user}/activate', [\App\Http\Controllers\Admin\ModerationController::class, 'activateUser'])->name('moderation.users.activate');
+});
 
 // Public student profile
 Route::get('/student/{user}/profile', [StudentProfileController::class, 'publicProfile'])->name('student.profile.public');

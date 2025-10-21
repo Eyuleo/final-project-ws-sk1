@@ -252,6 +252,69 @@ class OrderService
     }
 
     /**
+     * Resolve dispute (admin action)
+     *
+     * @param Order $order
+     * @param string $resolution 'release_to_student', 'refund_to_client', or 'split'
+     * @param string $adminNotes Admin notes explaining resolution
+     * @param float|null $studentAmount Amount to release to student (for split)
+     * @param float|null $clientAmount Amount to refund to client (for split)
+     * @return Order
+     * @throws \Exception if order not disputed or invalid resolution
+     */
+    public function resolveDispute(
+        Order $order,
+        string $resolution,
+        string $adminNotes,
+        ?float $studentAmount = null,
+        ?float $clientAmount = null
+    ): Order {
+        if ($order->status !== 'disputed') {
+            throw new \Exception('Only disputed orders can be resolved.');
+        }
+
+        if (!in_array($resolution, ['release_to_student', 'refund_to_client', 'split'])) {
+            throw new \Exception('Invalid resolution type.');
+        }
+
+        return DB::transaction(function () use ($order, $resolution, $adminNotes, $studentAmount, $clientAmount) {
+            // Handle escrow based on resolution
+            switch ($resolution) {
+                case 'release_to_student':
+                    $this->escrowService->releaseFunds($order);
+                    $order->update(['status' => 'approved']);
+                    break;
+
+                case 'refund_to_client':
+                    $this->escrowService->refundFunds($order);
+                    $order->update(['status' => 'cancelled']);
+                    break;
+
+                case 'split':
+                    if ($studentAmount === null || $clientAmount === null) {
+                        throw new \Exception('Split amounts required for split resolution.');
+                    }
+                    $this->escrowService->splitFunds($order, $studentAmount, $clientAmount);
+                    $order->update(['status' => 'resolved']);
+                    break;
+            }
+
+            // Update dispute resolution details
+            $order->update([
+                'dispute_resolved_at' => now(),
+                'dispute_resolution' => $resolution,
+                'admin_notes' => $adminNotes,
+                'student_split_amount' => $studentAmount,
+                'client_split_amount' => $clientAmount,
+            ]);
+
+            $this->notificationService->sendDisputeResolvedNotification($order);
+
+            return $order->fresh();
+        });
+    }
+
+    /**
      * Cancel order (mutual or admin action)
      *
      * @param Order $order

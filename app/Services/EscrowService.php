@@ -187,17 +187,22 @@ class EscrowService
      * Split escrow funds between student and client (for dispute resolution)
      *
      * @param Order $order The order to split funds for
-     * @param float $studentPercentage Percentage to give to student (0-100)
+     * @param float $studentAmount Amount to give to student
+     * @param float $clientAmount Amount to refund to client
      * @param string|null $reason Reason for split
      * @return array Array of transactions [student_transaction, refund_transaction]
      */
-    public function splitFunds(Order $order, float $studentPercentage, ?string $reason = null): array
+    public function splitFunds(Order $order, float $studentAmount, float $clientAmount, ?string $reason = null): array
     {
-        if ($studentPercentage < 0 || $studentPercentage > 100) {
-            throw new \InvalidArgumentException('Student percentage must be between 0 and 100');
+        if ($studentAmount < 0 || $clientAmount < 0) {
+            throw new \InvalidArgumentException('Split amounts cannot be negative');
         }
 
-        return DB::transaction(function () use ($order, $studentPercentage, $reason) {
+        if (abs(($studentAmount + $clientAmount) - $order->total_amount) > 0.01) {
+            throw new \InvalidArgumentException('Split amounts must equal order total');
+        }
+
+        return DB::transaction(function () use ($order, $studentAmount, $clientAmount, $reason) {
             // Mark escrow hold as completed
             $escrowTransaction = $order->transactions()
                 ->where('type', 'escrow_hold')
@@ -214,13 +219,13 @@ class EscrowService
                 'metadata' => array_merge($escrowTransaction->metadata ?? [], [
                     'split_at' => now()->toIso8601String(),
                     'split_reason' => $reason,
-                    'student_percentage' => $studentPercentage,
+                    'student_amount' => $studentAmount,
+                    'client_amount' => $clientAmount,
                 ]),
             ]);
 
-            // Calculate split amounts
-            $studentAmount = round($order->total_amount * ($studentPercentage / 100), 2);
-            $refundAmount = round($order->total_amount - $studentAmount, 2);
+            // Use provided split amounts
+            $refundAmount = $clientAmount;
 
             $transactions = [];
 
