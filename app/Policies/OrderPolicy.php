@@ -111,4 +111,16 @@ class OrderPolicy
         return $order->clientProfile->user_id === $user->id
             || $order->studentProfile->user_id === $user->id;
     }
+
+    /**
+     * Determine if the user can review the order
+     */
+    public function review(User $user, Order $order): bool
+    {
+        // Only the client who placed the order can review after approval
+        return $user->role === 'client'
+            && $order->clientProfile->user_id === $user->id
+            && $order->status === 'approved'
+            && !$order->review()->exists();
+    }
 }

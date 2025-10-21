@@ -4,15 +4,19 @@ namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Student\WithdrawalRequest;
+use App\Services\ExportService;
 use App\Services\WithdrawalService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class EarningsController extends Controller
 {
     public function __construct(
-        protected WithdrawalService $withdrawalService
+        protected WithdrawalService $withdrawalService,
+        protected ExportService $exportService
     ) {
     }
 
@@ -113,5 +117,42 @@ class EarningsController extends Controller
         }
 
         return redirect($onboardingLink);
+    }
+
+    /**
+     * Export transaction history.
+     */
+    public function export(Request $request): StreamedResponse
+    {
+        $user = Auth::user();
+        $format = $request->input('format', 'csv');
+        
+        // Validate format
+        if (!in_array($format, ['csv', 'json'])) {
+            abort(400, 'Invalid export format');
+        }
+        
+        // Get filters from request
+        $filters = $request->only(['date_from', 'date_to', 'type']);
+        
+        // Generate export content
+        $content = $format === 'csv' 
+            ? $this->exportService->exportTransactionsToCSV($user, $filters)
+            : $this->exportService->exportTransactionsToJSON($user, $filters);
+        
+        // Generate filename
+        $filename = $this->exportService->generateExportFilename($format, $user);
+        
+        // Return streamed response
+        return response()->streamDownload(
+            function () use ($content) {
+                echo $content;
+            },
+            $filename,
+            [
+                'Content-Type' => $this->exportService->getMimeType($format),
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ]
+        );
     }
 }

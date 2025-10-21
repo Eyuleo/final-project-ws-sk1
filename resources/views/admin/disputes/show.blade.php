@@ -82,13 +82,13 @@
                                     <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap bg-red-50 p-3 rounded">{{ $order->dispute_reason }}</dd>
                                 </div>
                             @endif
-                            @if($order->dispute_evidence_files)
+                            @if($order->dispute_evidence)
                                 <div class="sm:col-span-2">
                                     <dt class="text-sm font-medium text-gray-500">Evidence Files</dt>
                                     <dd class="mt-1">
-                                        @foreach($order->dispute_evidence_files as $file)
+                                        @foreach($order->dispute_evidence as $file)
                                             <a href="{{ Storage::url($file) }}" target="_blank" class="text-blue-600 hover:text-blue-500 text-sm block">
-                                                {{ basename($file) }}
+                                                📎 {{ basename($file) }}
                                             </a>
                                         @endforeach
                                     </dd>

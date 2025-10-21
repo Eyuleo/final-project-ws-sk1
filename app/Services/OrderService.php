@@ -233,8 +233,8 @@ class OrderService
      */
     public function openDispute(Order $order, string $reason, array $evidenceFiles = []): Order
     {
-        if ($order->revision_count < $order->max_revisions) {
-            throw new \Exception('You must exhaust all revisions before opening a dispute.');
+        if ($order->status !== 'completed') {
+            throw new \Exception('You can only dispute completed orders.');
         }
 
         return DB::transaction(function () use ($order, $reason, $evidenceFiles) {

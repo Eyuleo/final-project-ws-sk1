@@ -44,12 +44,12 @@ class ServiceListing extends Model
     {
         return [
             'portfolio_files' => 'array',
-            'price' => 'decimal:2',
+            'price' => 'float',
             'delivery_days' => 'integer',
             'revisions' => 'integer',
             'views_count' => 'integer',
             'orders_count' => 'integer',
-            'average_rating' => 'decimal:2',
+            'average_rating' => 'float',
         ];
     }
 

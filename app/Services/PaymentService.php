@@ -113,6 +113,8 @@ class PaymentService
             'user_id' => $order->clientProfile->user_id,
             'type' => 'refund',
             'amount' => $amount ?? $order->total_amount,
+            'fee' => 0,
+            'net_amount' => $amount ?? $order->total_amount,
             'status' => 'completed',
             'stripe_payment_intent_id' => $paymentTransaction->stripe_payment_intent_id,
             'stripe_refund_id' => $refund->id,

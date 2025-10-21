@@ -45,13 +45,13 @@ class StudentProfile extends Model
     {
         return [
             'skills' => 'array',
-            'hourly_rate_min' => 'decimal:2',
-            'hourly_rate_max' => 'decimal:2',
-            'total_earnings' => 'decimal:2',
-            'available_balance' => 'decimal:2',
-            'pending_balance' => 'decimal:2',
-            'withdrawn_balance' => 'decimal:2',
-            'average_rating' => 'decimal:2',
+            'hourly_rate_min' => 'float',
+            'hourly_rate_max' => 'float',
+            'total_earnings' => 'float',
+            'available_balance' => 'float',
+            'pending_balance' => 'float',
+            'withdrawn_balance' => 'float',
+            'average_rating' => 'float',
             'total_reviews' => 'integer',
             'total_orders' => 'integer',
         ];

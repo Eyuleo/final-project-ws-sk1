@@ -36,7 +36,7 @@ class ClientProfile extends Model
     {
         return [
             'total_orders' => 'integer',
-            'average_rating' => 'decimal:2',
+            'average_rating' => 'float',
             'total_reviews' => 'integer',
         ];
     }

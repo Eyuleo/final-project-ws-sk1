@@ -36,9 +36,9 @@ class Transaction extends Model
     protected function casts(): array
     {
         return [
-            'amount' => 'decimal:2',
-            'fee' => 'decimal:2',
-            'net_amount' => 'decimal:2',
+            'amount' => 'float',
+            'fee' => 'float',
+            'net_amount' => 'float',
             'metadata' => 'array',
         ];
     }

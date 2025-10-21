@@ -51,6 +51,9 @@ class Order extends Model
         'disputed_at',
         'dispute_reason',
         'dispute_evidence',
+        'dispute_resolved_at',
+        'dispute_resolution',
+        'admin_notes',
         'cancelled_by',
     ];
 
@@ -63,10 +66,10 @@ class Order extends Model
     {
         return [
             'quantity' => 'integer',
-            'unit_price' => 'decimal:2',
-            'subtotal' => 'decimal:2',
-            'platform_fee' => 'decimal:2',
-            'total_amount' => 'decimal:2',
+            'unit_price' => 'float',
+            'subtotal' => 'float',
+            'platform_fee' => 'float',
+            'total_amount' => 'float',
             'deadline' => 'datetime',
             'accepted_at' => 'datetime',
             'completed_at' => 'datetime',
@@ -75,6 +78,7 @@ class Order extends Model
             'declined_at' => 'datetime',
             'started_at' => 'datetime',
             'disputed_at' => 'datetime',
+            'dispute_resolved_at' => 'datetime',
             'deliverable_files' => 'array',
             'attachment_files' => 'array',
             'dispute_evidence' => 'array',

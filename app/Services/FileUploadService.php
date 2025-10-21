@@ -299,8 +299,30 @@ class FileUploadService
      */
     protected function createThumbnail(UploadedFile $file, string $directory, string $filename): void
     {
-        // Skip thumbnail creation for now
-        // TODO: Implement thumbnail creation with GD or install Intervention Image
+        try {
+            // Read the original file
+            $image = Image::read($file);
+            
+            // Resize to thumbnail size (300x300) while maintaining aspect ratio
+            $image->scale(width: 300, height: 300);
+            
+            // Generate thumbnail filename
+            $thumbnailFilename = 'thumb_' . $filename;
+            $thumbnailPath = "{$directory}/{$thumbnailFilename}";
+            
+            // Convert to JPEG with quality 80
+            $encodedImage = $image->toJpeg(quality: 80);
+            
+            // Store the thumbnail
+            Storage::disk('public')->put($thumbnailPath, $encodedImage);
+        } catch (\Exception $e) {
+            // Log error but don't fail the upload
+            \Log::warning('Failed to create thumbnail', [
+                'file' => $filename,
+                'directory' => $directory,
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     /**

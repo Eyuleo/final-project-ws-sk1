@@ -16,9 +16,9 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                 <div class="p-6">
                     <div class="flex items-start gap-4">
-                        @if($category->icon)
-                            <div class="text-5xl">{{ $category->icon }}</div>
-                        @endif
+                        <div class="w-16 h-16 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <x-icon :name="$category->icon" class="w-10 h-10 text-blue-600" />
+                        </div>
                         <div class="flex-1">
                             <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ $category->name }}</h1>
                             @if($category->description)

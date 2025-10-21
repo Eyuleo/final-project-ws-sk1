@@ -90,6 +90,8 @@ class EscrowService
                 'user_id' => null, // Platform transaction
                 'type' => 'platform_fee',
                 'amount' => $platformFee,
+                'fee' => 0,
+                'net_amount' => $platformFee,
                 'status' => 'completed',
                 'metadata' => [
                     'fee_percentage' => 15,
@@ -100,9 +102,11 @@ class EscrowService
             // Create student earnings transaction
             $earningsTransaction = Transaction::create([
                 'order_id' => $order->id,
-                'user_id' => $order->student_id,
+                'user_id' => $order->studentProfile->user_id,
                 'type' => 'earnings',
                 'amount' => $studentEarnings,
+                'fee' => 0,
+                'net_amount' => $studentEarnings,
                 'status' => 'completed',
                 'metadata' => [
                     'platform_fee' => $platformFee,
@@ -110,13 +114,13 @@ class EscrowService
                 ],
             ]);
 
-            // Update student's available balance
-            $student = User::findOrFail($order->student_id);
-            $student->increment('available_balance', $studentEarnings);
+            // Update student profile's available balance
+            $order->studentProfile->increment('available_balance', $studentEarnings);
 
-            // Update order escrow status
+            // Update order escrow and payment status
             $order->update([
                 'escrow_status' => 'released',
+                'payment_status' => 'paid',
             ]);
 
             return $earningsTransaction;
@@ -239,6 +243,8 @@ class EscrowService
                     'user_id' => null,
                     'type' => 'platform_fee',
                     'amount' => $platformFee,
+                    'fee' => 0,
+                    'net_amount' => $platformFee,
                     'status' => 'completed',
                     'metadata' => [
                         'fee_percentage' => 15,
@@ -248,9 +254,11 @@ class EscrowService
 
                 $transactions['student'] = Transaction::create([
                     'order_id' => $order->id,
-                    'user_id' => $order->student_id,
+                    'user_id' => $order->studentProfile->user_id,
                     'type' => 'earnings',
                     'amount' => $netStudentEarnings,
+                    'fee' => 0,
+                    'net_amount' => $netStudentEarnings,
                     'status' => 'completed',
                     'metadata' => [
                         'platform_fee' => $platformFee,
@@ -259,8 +267,7 @@ class EscrowService
                     ],
                 ]);
 
-                $student = User::findOrFail($order->student_id);
-                $student->increment('available_balance', $netStudentEarnings);
+                $order->studentProfile->increment('available_balance', $netStudentEarnings);
             }
 
             // Process refund to client if applicable

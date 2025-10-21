@@ -12,7 +12,6 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
-            
             <!-- Order Status Banner -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
@@ -21,7 +20,8 @@
                             <h3 class="text-lg font-semibold text-gray-900 mb-2">Order Status</h3>
                             <div class="flex items-center space-x-4">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
-                                    @if($order->status === 'pending' || $order->status === 'pending_payment') bg-yellow-100 text-yellow-800
+                                    @if($order->status === 'disputed') bg-red-100 text-red-800
+                                    @elseif($order->status === 'pending' || $order->status === 'pending_payment') bg-yellow-100 text-yellow-800
                                     @elseif($order->status === 'accepted' || $order->status === 'in_progress') bg-blue-100 text-blue-800
                                     @elseif($order->status === 'completed') bg-purple-100 text-purple-800
                                     @elseif($order->status === 'approved') bg-green-100 text-green-800
@@ -158,6 +158,29 @@
                             </div>
                         @endif
 
+                        @if($order->status === 'disputed')
+                            <!-- Dispute Submitted Notice -->
+                            <div class="mt-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+                                <div class="flex items-start">
+                                    <svg class="w-6 h-6 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                    <div class="ml-3 flex-1">
+                                        <h3 class="text-sm font-medium text-red-800">Dispute Opened</h3>
+                                        <div class="mt-2 text-sm text-red-700">
+                                            <p>Your dispute has been submitted and is under review by our admin team.</p>
+                                            @if($order->dispute_reason)
+                                                <p class="mt-2"><strong>Your reason:</strong> {{ $order->dispute_reason }}</p>
+                                            @endif
+                                            @if($order->disputed_at)
+                                                <p class="mt-1 text-xs text-red-600">Submitted on {{ $order->disputed_at->format('M d, Y \a\t H:i') }}</p>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         @if($order->status === 'completed')
                             <!-- Approve/Revision Actions -->
                             <div class="flex items-center space-x-4 flex-wrap gap-2">
@@ -172,11 +195,11 @@
                                     <button onclick="document.getElementById('revision-modal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-yellow-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition">
                                         Request Revision ({{ $order->max_revisions - $order->revision_count }} left)
                                     </button>
-                                @else
-                                    <button onclick="document.getElementById('dispute-modal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition">
-                                        Open Dispute
-                                    </button>
                                 @endif
+                                
+                                <button onclick="document.getElementById('dispute-modal').classList.remove('hidden')" class="inline-flex items-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition">
+                                    Open Dispute
+                                </button>
                             </div>
                         @endif
 
