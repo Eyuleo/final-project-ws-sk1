@@ -65,7 +65,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('verification.notice');
     }
 
     /**
@@ -113,7 +113,7 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('student.profile.edit')->with('success', 'Welcome! Please complete your profile to start offering services.');
+        return redirect()->route('verification.notice')->with('success', 'Please verify your email address to continue.');
     }
 
     /**
@@ -152,6 +152,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect()->route('client.dashboard')->with('success', 'Welcome to Student Skills Marketplace!');
+        return redirect()->route('verification.notice')->with('success', 'Please verify your email address to continue.');
     }
 }

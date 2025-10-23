@@ -51,12 +51,12 @@ Route::get('/dashboard', function () {
 // Student dashboard route
 Route::get('/student/dashboard', function () {
     return view('student.dashboard');
-})->middleware(['auth', 'student'])->name('student.dashboard');
+})->middleware(['auth', 'verified', 'student'])->name('student.dashboard');
 
 // Client dashboard route
 Route::get('/client/dashboard', function () {
     return view('client.dashboard');
-})->middleware(['auth', 'client'])->name('client.dashboard');
+})->middleware(['auth', 'verified', 'client'])->name('client.dashboard');
 
 // Admin routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -101,7 +101,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::get('/student/{user}/profile', [StudentProfileController::class, 'publicProfile'])->name('student.profile.public');
 
 // Student profile routes
-Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->group(function () {
+Route::middleware(['auth', 'verified', 'student'])->prefix('student')->name('student.')->group(function () {
     Route::get('/profile', [StudentProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [StudentProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [StudentProfileController::class, 'update'])->name('profile.update');
@@ -129,7 +129,7 @@ Route::middleware(['auth', 'student'])->prefix('student')->name('student.')->gro
 });
 
 // Client routes
-Route::middleware(['auth', 'client'])->prefix('client')->name('client.')->group(function () {
+Route::middleware(['auth', 'verified', 'client'])->prefix('client')->name('client.')->group(function () {
     // Profile routes
     Route::get('/profile', [ClientProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ClientProfileController::class, 'edit'])->name('profile.edit');
