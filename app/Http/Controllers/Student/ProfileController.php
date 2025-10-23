@@ -69,6 +69,19 @@ class ProfileController extends Controller
         $profile = $user->studentProfile;
 
         DB::transaction(function () use ($request, $user, $profile) {
+            // Update user information
+            $userData = [
+                'name' => $request->input('name'),
+                'email' => $request->input('email'),
+            ];
+
+            // Update password if provided
+            if ($request->filled('password')) {
+                $userData['password'] = $request->input('password');
+            }
+
+            $user->update($userData);
+
             // Handle profile picture upload
             if ($request->hasFile('profile_picture')) {
                 // Delete old profile picture if exists
@@ -159,15 +172,21 @@ class ProfileController extends Controller
     /**
      * Display public profile for a student.
      */
-    public function publicProfile(int $userId): View
+    public function publicProfile(\App\Models\User $user): View
     {
-        $user = \App\Models\User::with('studentProfile')->findOrFail($userId);
-
+        // Ensure user is a student
         if ($user->role !== 'student') {
             abort(404);
         }
 
+        // Load the student profile relationship
+        $user->load('studentProfile');
         $profile = $user->studentProfile;
+
+        // Check if profile exists
+        if (!$profile) {
+            abort(404);
+        }
 
         // Get student's services
         $services = $profile->serviceListings()

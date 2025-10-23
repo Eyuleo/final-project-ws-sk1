@@ -24,6 +24,12 @@ class UpdateProfileRequest extends FormRequest
     public function rules(): array
     {
         return [
+            // Account Settings
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $this->user()->id],
+            'current_password' => ['nullable', 'string', 'current_password'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+            
             // Basic Info
             'bio' => ['nullable', 'string', 'max:1000'],
             'tagline' => ['nullable', 'string', 'max:100'],
@@ -104,6 +110,19 @@ class UpdateProfileRequest extends FormRequest
             'profile_picture.max' => 'Profile picture must not exceed 5MB.',
             'portfolio_files.*.max' => 'Each portfolio file must not exceed 50MB.',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            // Require current password only if user is trying to set a new password
+            if ($this->filled('password') && !$this->filled('current_password')) {
+                $validator->errors()->add('current_password', 'Current password is required to set a new password.');
+            }
+        });
     }
 
     /**

@@ -46,6 +46,9 @@
                                 <x-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')" class="text-gray-300 hover:text-white">
                                     {{ __('Moderation') }}
                                 </x-nav-link>
+                                <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')" class="text-gray-300 hover:text-white">
+                                    {{ __('Categories') }}
+                                </x-nav-link>
                             </div>
                         </div>
 
@@ -112,6 +115,9 @@
                         </x-responsive-nav-link>
                         <x-responsive-nav-link :href="route('admin.moderation.index')" :active="request()->routeIs('admin.moderation.*')">
                             {{ __('Moderation') }}
+                        </x-responsive-nav-link>
+                        <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Categories') }}
                         </x-responsive-nav-link>
                     </div>
 

@@ -15,6 +15,57 @@
             @csrf
             @method('PUT')
 
+            <!-- Account Settings -->
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Account Settings</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Name -->
+                        <div>
+                            <x-input-label for="name" :value="__('Full Name')" />
+                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $user->name)" required autofocus placeholder="Your full name" />
+                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                        </div>
+
+                        <!-- Email -->
+                        <div>
+                            <x-input-label for="email" :value="__('Email Address')" />
+                            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $user->email)" required placeholder="your.email@example.com" />
+                            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <!-- Password Change Section -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <h4 class="text-md font-medium text-gray-900 mb-4">Change Password</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Current Password -->
+                            <div>
+                                <x-input-label for="current_password" :value="__('Current Password')" />
+                                <x-text-input id="current_password" class="block mt-1 w-full" type="password" name="current_password" autocomplete="current-password" placeholder="Enter current password" />
+                                <p class="mt-1 text-xs text-gray-500">Required to change password</p>
+                                <x-input-error :messages="$errors->get('current_password')" class="mt-2" />
+                            </div>
+
+                            <!-- New Password -->
+                            <div>
+                                <x-input-label for="password" :value="__('New Password')" />
+                                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" autocomplete="new-password" placeholder="Enter new password" />
+                                <p class="mt-1 text-xs text-gray-500">Min 8 characters</p>
+                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                            </div>
+
+                        <!-- Password Confirmation -->
+                        <div>
+                            <x-input-label for="password_confirmation" :value="__('Confirm New Password')" />
+                            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" autocomplete="new-password" placeholder="Confirm new password" />
+                            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Basic Information -->
             <div class="bg-white overflow-hidden shadow-sm rounded-lg">
                 <div class="p-6">
@@ -141,15 +192,11 @@
                                                 </svg>
                                             </div>
                                         @endif
-                                        <form method="POST" action="{{ route('student.profile.portfolio.delete', $index) }}" class="absolute top-2 right-2">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this file?')" class="bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <button type="button" onclick="deletePortfolioFile({{ $index }})" class="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
                                         @if(isset($file['description']))
                                             <p class="mt-1 text-xs text-gray-600 truncate">{{ $file['description'] }}</p>
                                         @endif
@@ -240,5 +287,25 @@
                 </x-primary-button>
             </div>
         </form>
+
+        <!-- Hidden forms for portfolio file deletion (outside main form to avoid nesting) -->
+        @if($profile->portfolio_files && count($profile->portfolio_files) > 0)
+            @foreach($profile->portfolio_files as $index => $file)
+                <form id="delete-portfolio-form-{{ $index }}" method="POST" action="{{ route('student.profile.portfolio.delete', $index) }}" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                </form>
+            @endforeach
+        @endif
     </div>
+
+    @push('scripts')
+    <script>
+        function deletePortfolioFile(index) {
+            if (confirm('Are you sure you want to delete this portfolio file?')) {
+                document.getElementById('delete-portfolio-form-' + index).submit();
+            }
+        }
+    </script>
+    @endpush
 </x-app-layout>

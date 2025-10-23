@@ -47,6 +47,14 @@
                                 </svg>
                                 {{ $profile->field_of_study }}
                             </div>
+                            @if($profile->year_of_study)
+                                <div class="flex items-center">
+                                    <svg class="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                    {{ $profile->year_of_study }}
+                                </div>
+                            @endif
                             @if($profile->hourly_rate)
                                 <div class="flex items-center font-semibold text-blue-600">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -166,7 +174,7 @@
                                     <div class="border-b border-gray-200 pb-4 last:border-0">
                                         <div class="flex items-start justify-between mb-2">
                                             <div>
-                                                <p class="font-semibold text-gray-900">{{ $review->client->name }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $review->client?->name ?? 'Anonymous Client' }}</p>
                                                 <x-rating-stars :rating="$review->rating" size="sm" />
                                             </div>
                                             <span class="text-sm text-gray-500">{{ $review->created_at->diffForHumans() }}</span>

@@ -160,7 +160,7 @@
                                     <div class="border-b border-gray-200 pb-4 last:border-0">
                                         <div class="flex items-start justify-between mb-2">
                                             <div>
-                                                <p class="font-semibold text-gray-900">{{ $review->client->name }}</p>
+                                                <p class="font-semibold text-gray-900">{{ $review->client?->name ?? 'Anonymous Client' }}</p>
                                                 <x-rating-stars :rating="$review->rating" size="sm" />
                                             </div>
                                             <span class="text-sm text-gray-500">{{ $review->created_at->diffForHumans() }}</span>

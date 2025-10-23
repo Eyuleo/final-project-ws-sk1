@@ -61,7 +61,17 @@ class EarningsController extends Controller
         // Check if student has Stripe Connect account
         $hasStripeAccount = !empty($profile->stripe_connect_id);
 
-        return view('student.earnings.withdraw', compact('profile', 'hasStripeAccount'));
+        // Check Stripe verification status
+        $stripeVerified = false;
+        $stripeMessage = '';
+        
+        if ($hasStripeAccount) {
+            $stripeStatus = $this->withdrawalService->checkStripeAccountStatus($profile);
+            $stripeVerified = $stripeStatus['isVerified'];
+            $stripeMessage = $stripeStatus['message'];
+        }
+
+        return view('student.earnings.withdraw', compact('profile', 'hasStripeAccount', 'stripeVerified', 'stripeMessage'));
     }
 
     /**

@@ -29,6 +29,61 @@ class WithdrawalService
     }
 
     /**
+     * Check if student's Stripe Connect account is verified and ready for payouts.
+     *
+     * @param StudentProfile $studentProfile
+     * @return array [isVerified, message]
+     */
+    public function checkStripeAccountStatus(StudentProfile $studentProfile): array
+    {
+        if (!$studentProfile->stripe_connect_id) {
+            return [
+                'isVerified' => false,
+                'message' => 'You need to connect your Stripe account before withdrawing funds.'
+            ];
+        }
+
+        if (!$this->stripe) {
+            throw new \Exception('Stripe is not configured.');
+        }
+
+        try {
+            $account = $this->stripe->accounts->retrieve($studentProfile->stripe_connect_id);
+
+            // Check if charges are enabled (account is verified)
+            if (!$account->charges_enabled) {
+                return [
+                    'isVerified' => false,
+                    'message' => 'Your Stripe account needs to complete verification before you can withdraw funds.'
+                ];
+            }
+
+            // Check if payouts are enabled
+            if (!$account->payouts_enabled) {
+                return [
+                    'isVerified' => false,
+                    'message' => 'Your Stripe account is not yet enabled for payouts. Please complete the verification process.'
+                ];
+            }
+
+            return [
+                'isVerified' => true,
+                'message' => 'Your Stripe account is verified and ready for withdrawals.'
+            ];
+        } catch (ApiErrorException $e) {
+            Log::error('Error checking Stripe account status', [
+                'student_profile_id' => $studentProfile->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'isVerified' => false,
+                'message' => 'Unable to verify your Stripe account. Please contact support.'
+            ];
+        }
+    }
+
+    /**
      * Create a withdrawal request.
      *
      * @param StudentProfile $studentProfile
@@ -38,6 +93,12 @@ class WithdrawalService
      */
     public function createWithdrawal(StudentProfile $studentProfile, array $data): Withdrawal
     {
+        // Check Stripe account status
+        $stripeStatus = $this->checkStripeAccountStatus($studentProfile);
+        if (!$stripeStatus['isVerified']) {
+            throw new \Exception($stripeStatus['message']);
+        }
+
         // Validate available balance
         if ($studentProfile->available_balance < $data['amount']) {
             throw new \Exception('Insufficient balance for withdrawal.');
@@ -50,17 +111,16 @@ class WithdrawalService
             $fee = max(1, $data['amount'] * 0.02);
             $netAmount = $data['amount'] - $fee;
 
-            // Prepare account details
-            $accountDetails = $this->prepareAccountDetails($data);
-
             // Create withdrawal record
             $withdrawal = Withdrawal::create([
                 'student_profile_id' => $studentProfile->id,
                 'amount' => $data['amount'],
                 'fee' => $fee,
                 'net_amount' => $netAmount,
-                'method' => $data['method'],
-                'account_details' => $accountDetails,
+                'method' => 'stripe_connect',
+                'account_details' => [
+                    'stripe_account_id' => $studentProfile->stripe_connect_id,
+                ],
                 'status' => 'pending',
             ]);
 
@@ -75,10 +135,11 @@ class WithdrawalService
                 'fee' => $fee,
                 'net_amount' => $netAmount,
                 'status' => 'pending',
-                'description' => 'Withdrawal request via ' . str_replace('_', ' ', $data['method']),
+                'description' => 'Withdrawal request via Stripe Connect',
                 'metadata' => [
                     'withdrawal_id' => $withdrawal->id,
-                    'method' => $data['method'],
+                    'method' => 'stripe_connect',
+                    'stripe_account_id' => $studentProfile->stripe_connect_id,
                 ],
             ]);
 
@@ -102,28 +163,6 @@ class WithdrawalService
             ]);
             throw $e;
         }
-    }
-
-    /**
-     * Prepare account details for storage.
-     *
-     * @param array $data
-     * @return array
-     */
-    protected function prepareAccountDetails(array $data): array
-    {
-        if ($data['method'] === 'bank_transfer') {
-            return [
-                'account_number' => $data['account_number'],
-                'bank_name' => $data['bank_name'],
-                'account_holder_name' => $data['account_holder_name'],
-            ];
-        }
-
-        return [
-            'phone_number' => $data['phone_number'],
-            'mobile_provider' => $data['mobile_provider'],
-        ];
     }
 
     /**
